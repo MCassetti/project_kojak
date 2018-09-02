@@ -38,21 +38,30 @@ if __name__ == "__main__":
             url = img['src']
             response = requests.get(url)
             curr_img = url.split('/')[-1]
+            title = curr_img.split('.jpg')[0]
+            full_caption_path = current_path + meme_path + 'meme_captions_' + title + '.txt'
             full_path = current_path + meme_path + curr_img
+            if os.path.isfile(full_caption_path): #don't need to visit this meme
+                continue
             ### Get the templates
             with open(full_path, 'wb') as outfile:
                 outfile.write(response.content)
-            print(full_path)
+
             ### Get the captions
+
             for caption in range(1,total_captions):
+
                 if caption == 1:
                     url = 'https://memegenerator.net' + links[link]['href']
                 else:
                     url = 'https://memegenerator.net' + links[link]['href'] + '/images/popular/alltime/page/' + str(caption)
 
-                title = curr_img.split('.jpg')[0]
+
                 img_caption_links, caption_links = find_img_links(url)
-                full_caption_path = current_path + meme_path + 'meme_captions_' + title + '.txt'
+                if caption % 100 == 0:
+                    print(caption) # logging purposes
+
+
                 if caption_links:
                     with open(full_caption_path, 'a') as f:
                         for caption in caption_links:
