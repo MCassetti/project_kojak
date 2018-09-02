@@ -13,7 +13,7 @@ Tools: Having struggled with pytorch in the last project, I will continue using 
 
  
 Data set: Initially, 5-20 tagged memes with captions that coorespond to the meme.
-I will also need a corpus of text to do sentiment analysis and context completion.
+I will also need a corpus of text to do sentiment analysis and context completion
 
 
 
