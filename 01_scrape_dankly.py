@@ -7,6 +7,9 @@ I'm super lucky the captions and tags are very scrappable"""
 
 total_templates = 250
 total_captions = 2000
+start_template = 1
+start_caption = 1
+start_link = 0
 
 def find_img_links(url):
     response = requests.get(url)
@@ -24,9 +27,11 @@ if __name__ == "__main__":
 
     current_path = os.getcwd()
     meme_path = '/meme_downloads/'
+    base_path = current_path + meme_path
+    restart_file = base_path + 'caption_template.txt'
 
-    for page_num in range(1,total_templates):
-        print('beginning image and caption download')
+    for page_num in range(start_template,total_templates):
+
         if page_num == 1:
             url = 'https://memegenerator.net/memes/popular/alltime'
         else:
@@ -39,17 +44,24 @@ if __name__ == "__main__":
             response = requests.get(url)
             curr_img = url.split('/')[-1]
             title = curr_img.split('.jpg')[0]
-            full_caption_path = current_path + meme_path + 'meme_captions_' + title + '.txt'
-            full_path = current_path + meme_path + curr_img
+            full_caption_path = base_path + 'meme_captions_' + title + '.txt'
+
+            full_path = base_path + curr_img
+            print(full_path)
             if os.path.isfile(full_caption_path): #don't need to visit this meme
                 continue
+
             ### Get the templates
             with open(full_path, 'wb') as outfile:
                 outfile.write(response.content)
 
             ### Get the captions
 
-            for caption in range(1,total_captions):
+            for caption in range(start_caption,total_captions):
+
+                ## restart logging
+                with open(restart_file,'w') as fp:
+                    fp.write('%s\t%s\t%s' % (page_num,caption,link + start_link))
 
                 if caption == 1:
                     url = 'https://memegenerator.net' + links[link]['href']
@@ -58,6 +70,7 @@ if __name__ == "__main__":
 
 
                 img_caption_links, caption_links = find_img_links(url)
+
                 if caption % 100 == 0:
                     print(caption) # logging purposes
 
