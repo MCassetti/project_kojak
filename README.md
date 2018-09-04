@@ -7,7 +7,7 @@ depending on the context of a user's conversation or text. This is like gify but
 
 Objective: Meme autocomplete for infinite lols
 
-Approach: Meme generation was already done using bidirectional LSTM with attention with some pretty awesome results (see this paper https://web.stanford.edu/class/cs224n/reports/6909159.pdf)however, I wish to implement a similiar method but in pytorch using an encoderCNN (with pretrained imaged dataset) and a decoderRNN to generate captions. 
+Approach: Meme generation was already done using bidirectional LSTM with attention with some pretty awesome results (see this paper https://web.stanford.edu/class/cs224n/reports/6909159.pdf )however, I wish to implement a similiar method but in pytorch using an encoderCNN (with pretrained imaged dataset) and a decoderRNN to generate captions. 
 
 Additionally I will do sentiment analysis on user texts to capture the context and provide the appropriate meme for the occasion. 
 
