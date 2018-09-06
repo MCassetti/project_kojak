@@ -3,9 +3,12 @@ import torch
 import torch.nn as nn
 import pickle
 import os
+import json
 from PIL import Image
 from memelookup import MEME
-from torch.utils.data import Dataset, DataLoader, pack_padded_sequence, PackedSequence
+from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms
 """ This is main driver for training the image/caption dataset"""
 """ This is my implementation of pytorch's image captioning encoderCNN and decoderRNN"""
 
@@ -29,7 +32,7 @@ crop_size = 224
 save_step = 100
 log_step = 10
 
-class memeDataset(data.Dataset):
+class memeDataset(DataLoader):
     """MEME Custom Dataset compatible with torch.utils.data.DataLoader."""
     def __init__(self, root, json, vocab, ids, transform=None):
 
@@ -43,6 +46,7 @@ class memeDataset(data.Dataset):
     def __getitem__(self,index):
         """Returns image and data caption pair"""
         meme = self.meme
+        print(meme)
         vocab = self.vocab
         cap_id = self.ids[index]
         caption = meme.caps[cap_id]['caption']
@@ -64,12 +68,16 @@ if __name__ == '__main__':
     # configure the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # open image and caption files
-    with open(vocab_file, 'rb') as f:
-        vocab = pickle.load(f)
-
-    with open(ids_file,'rb') as f:
-        ids = pickle.load(f)
-
+    # with open(vocab_file, 'rb') as f:
+    #     vocab = pickle.load(f)
+    #
+    # with open(ids_file,'rb') as f:
+    #     ids = pickle.load(f)
+    json = ''
+    vocab = ''
+    ids = ''
+    annotation_file = ''
+    root = current_dir
     # create DataLoader from my meme dataset
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
     # my captions: a tensor of shape (batch_size, padded_length)
@@ -81,7 +89,7 @@ if __name__ == '__main__':
         transforms.Normalize((0.485, 0.456, 0.406),
                              (0.229, 0.224, 0.225))])
 
-    memedata = memeDataset(image_path=image_path,
+    memedata = memeDataset(root=root,
                            json=json,
                            vocab=vocab,
                            ids=ids,
@@ -91,6 +99,9 @@ if __name__ == '__main__':
                              batch_size=batch_size,
                              shuffle=shuffle,
                              num_workers=num_workers)
+
+
+
     total_step = len(data_loader)
     # build models
     encoder = EncoderCNN(embed_size).to(device)
