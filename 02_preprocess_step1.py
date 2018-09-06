@@ -24,9 +24,9 @@ def process_and_save(image_dir, output_dir, size):
 if __name__ == '__main__':
     base_path = os.getcwd()
     meme_path = '/image_downloads/'
-    image_dir = '/image_downloads/resized/'
+    image_string = '/image_resized/'
     size = [256, 256]
 
     image_dir = base_path + meme_path
-    output_dir = base_path + image_dir
+    output_dir = base_path + image_string
     process_and_save(image_dir,output_dir,size)

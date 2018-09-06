@@ -1,3 +1,5 @@
 /meme_downloads
 /image_downloads
+__pycache__/
+/image_resized/
 .DS_Store

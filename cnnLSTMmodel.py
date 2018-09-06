@@ -6,7 +6,7 @@ from torch.nn.utils.rnn import pack_padded_sequence
 class EncoderCNN(nn.Module):
     def __init__(self,embed_size):
         """ """
-        super(EncoderCNN,self).__init__()
+        super(EncoderCNN, self).__init__()
         resent = models.resnet52(pretrained=True)
         modules = list(resnet.children())[:-1] #delete the last fc layer
         self.resnet = nn.Sequential(*modules) #pytorch's method of stringing together models
@@ -24,7 +24,7 @@ class EncoderCNN(nn.Module):
 class DecoderRNN(nn.Module):
     def __init__(self,embed_size,hidden_size,vocab_size,num_layers,max_seq_length = 100):
         """Build layers and set hyper params"""
-        super(DecoderRNN,self).__init__():
+        super(DecoderRNN, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
