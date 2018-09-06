@@ -11,8 +11,9 @@ class MEME:
         self.imgs = dict()
         self.imgToCaps = defaultdict(list)
         if not caption_file == None:
-            print('loading annotations into memory...')
+            print('loading captions into memory...')
             dataset = json.load(open(caption_file, 'r'))
+            print(dataset)
             self.dataset = dataset
             self.createIndex()
 
@@ -22,14 +23,17 @@ class MEME:
         caps = {}
         imgs = {}
         imgToCaps = defaultdict(list)
-        if 'captions' in self.dataset:
-            for caps in self.dataset['captions']:
-                imgToCaps[caps['image_id']].append(caps)
-                caps[caps['id']] = caps
 
-        if 'images' in self.dataset:
-            for img in self.dataset['images']:
-                imgs[img['id']] = img
+        #if 'captions' in self.dataset:
+        for caps in self.dataset.keys():
+            print(caps)
+            imgToCaps[caps['image_id']].append(caps)
+            caps[caps['id']] = caps
+
+        #if 'images' in self.dataset:
+        for img in self.dataset.values():
+            print(img)
+            imgs[img['id']] = img
 
                 # create class members
         self.caps = caps

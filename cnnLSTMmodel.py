@@ -7,7 +7,7 @@ class EncoderCNN(nn.Module):
     def __init__(self,embed_size):
         """ """
         super(EncoderCNN, self).__init__()
-        resent = models.resnet52(pretrained=True)
+        resnet = models.resnet152(pretrained=True)
         modules = list(resnet.children())[:-1] #delete the last fc layer
         self.resnet = nn.Sequential(*modules) #pytorch's method of stringing together models
         self.linear = nn.Linear(resnet.fc.in_features,embed_size)

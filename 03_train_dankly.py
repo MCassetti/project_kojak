@@ -1,4 +1,4 @@
-import cnnLSTMmodel as model
+from cnnLSTMmodel import EncoderCNN, DecoderRNN
 import torch
 import torch.nn as nn
 import pickle
@@ -31,6 +31,7 @@ learning_rate = 0.001
 crop_size = 224
 save_step = 100
 log_step = 10
+shuffle = True
 
 class memeDataset(DataLoader):
     """MEME Custom Dataset compatible with torch.utils.data.DataLoader."""
@@ -73,10 +74,10 @@ if __name__ == '__main__':
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
-    json = ''
-    vocab = ''
+    json = 'captions.json'
+    vocab = ['one','two','three','caption']
     ids = ''
-    annotation_file = ''
+    #caption_file = 'captions.json'
     root = current_dir
     # create DataLoader from my meme dataset
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
@@ -103,6 +104,7 @@ if __name__ == '__main__':
 
 
     total_step = len(data_loader)
+
     # build models
     encoder = EncoderCNN(embed_size).to(device)
     decoder = DecoderRNN(embed_size, hidden_size, len(vocab), num_layers).to(device)
