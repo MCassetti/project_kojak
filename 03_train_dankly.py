@@ -4,6 +4,7 @@ import torch.nn as nn
 import pickle
 import os
 from PIL import Image
+from memelookup import MEME
 from torch.utils.data import Dataset, DataLoader, pack_padded_sequence, PackedSequence
 """ This is main driver for training the image/caption dataset"""
 """ This is my implementation of pytorch's image captioning encoderCNN and decoderRNN"""
@@ -30,18 +31,24 @@ log_step = 10
 
 class memeDataset(data.Dataset):
     """MEME Custom Dataset compatible with torch.utils.data.DataLoader."""
-    def __init__(self, image_path, json, ids, transform=None):
+    def __init__(self, root, json, vocab, ids, transform=None):
 
         self.image_path = image_path
-        self.memecap = json
-        self.ids = list(ids)
+        self.meme = MEME(json)
+        self.ids = list(self.meme.caps.keys())
+        self.vocab = vocab
         self.transform = transform
+
 
     def __getitem__(self,index):
         """Returns image and data caption pair"""
-        path = image_path
-        caption = memecap[ids] #can I have multiple captions
-        image = Image.open(image_path).convert('RGB')
+        meme = self.meme
+        vocab = self.vocab
+        cap_id = self.ids[index]
+        caption = meme.caps[cap_id]['caption']
+        img_id = meme.caps[cap_id]['image_id']
+        path = meme.loadImgs(img_id)[0]['file_name']
+        image = Image.open(os.path.join(self.root, path)).convert('RGB')
         vocab = self.vocab
         if self.transform is not None:
             image = self.transform(image)
@@ -62,6 +69,7 @@ if __name__ == '__main__':
 
     with open(ids_file,'rb') as f:
         ids = pickle.load(f)
+
     # create DataLoader from my meme dataset
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
     # my captions: a tensor of shape (batch_size, padded_length)
@@ -110,7 +118,7 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-
+            ## Make this your own...add a visualizer
             # Print log info
             if i % log_step == 0:
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Perplexity: {:5.4f}'
