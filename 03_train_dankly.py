@@ -10,6 +10,7 @@ from memelookup import MEME
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+from meme_vocabulary import Vocabulary
 """ This is main driver for training the image/caption dataset"""
 """ This is my implementation of pytorch's image captioning encoderCNN and decoderRNN"""
 
@@ -17,7 +18,7 @@ current_dir = os.getcwd()
 data_dir = '/data/'
 image_dir = '/image_resized/'
 model_dir = '/models/'
-vocab_path = current_dir + data_dir + 'vocab.pkl'
+vocab_path = current_dir + '/vocab.pkl'
 ids_path = current_dir + data_dir + 'ids.pkl'
 caption_path = current_dir + data_dir + 'captions.json'
 image_path = current_dir + image_dir
@@ -74,18 +75,39 @@ class memeDataset(DataLoader):
         return len(self.ids)
 
 
+def collate_fn(data):
+    """Creates mini-batch tensors from the list of tuples (image, caption).
+    Returns:
+        images: torch tensor of shape (batch_size, 3, 256, 256).
+        targets: torch tensor of shape (batch_size, padded_length).
+        lengths: list; valid length for each padded caption.
+    """
+    # Sort a data list by caption length (descending order).
+    data.sort(key=lambda x: len(x[1]), reverse=True)
+    images, captions = zip(*data)
+
+    # Merge images (from tuple of 3D tensor to 4D tensor).
+    images = torch.stack(images, 0)
+
+    # Merge captions (from tuple of 1D tensor to 2D tensor).
+    lengths = [len(cap) for cap in captions]
+    targets = torch.zeros(len(captions), max(lengths)).long()
+    for i, cap in enumerate(captions):
+        end = lengths[i]
+        targets[i, :end] = cap[:end]
+    return images, targets, lengths
+
 
 if __name__ == '__main__':
     # configure the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # open image and caption files
-    # with open(vocab_file, 'rb') as f:
-    #     vocab = pickle.load(f)
+    with open(vocab_path, 'rb') as f:
+        vocab = pickle.load(f)
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
     json = 'captions.json'
-    vocab = {'one':1,'two':2,'three':3,'caption':4}
     ids = [0,1]
     #caption_file = 'captions.json'
     # create DataLoader from my meme dataset
@@ -108,7 +130,8 @@ if __name__ == '__main__':
     data_loader = DataLoader(dataset=memedata,
                              batch_size=batch_size,
                              shuffle=shuffle,
-                             num_workers=num_workers)
+                             num_workers=num_workers,
+                             collate_fn=collate_fn)
 
 
 
@@ -126,12 +149,11 @@ if __name__ == '__main__':
 
     for epoch in range(num_epochs):
         for i, (images, captions, lengths) in enumerate(data_loader):
-            print(images,captions,lengths)
             # Set mini-batch dataset
             images = images.to(device)
             captions = captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-
+            print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
             outputs = decoder(features, captions, lengths)
