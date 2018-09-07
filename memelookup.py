@@ -3,6 +3,7 @@ from collections import defaultdict
 import json
 import sys
 
+
 class MEME:
     def __init__(self, caption_file=None):
            # load dataset
@@ -13,7 +14,6 @@ class MEME:
         if not caption_file == None:
             print('loading captions into memory...')
             dataset = json.load(open(caption_file, 'r'))
-            print(dataset)
             self.dataset = dataset
             self.createIndex()
 
@@ -24,18 +24,17 @@ class MEME:
         imgs = {}
         imgToCaps = defaultdict(list)
 
-        #if 'captions' in self.dataset:
-        for caps in self.dataset.keys():
-            print(caps)
-            imgToCaps[caps['image_id']].append(caps)
-            caps[caps['id']] = caps
+        if 'captions' in self.dataset:
+            for cap in self.dataset['captions']:
+                imgToCaps[cap['image_id']].append(caps)
+                caps[cap['id']] = cap
 
-        #if 'images' in self.dataset:
-        for img in self.dataset.values():
-            print(img)
-            imgs[img['id']] = img
+        if 'images' in self.dataset:
+            for img in self.dataset['images']:
+                imgs[img['id']] = img
 
                 # create class members
+
         self.caps = caps
         self.imgToCaps = imgToCaps
         self.imgs = imgs
@@ -47,3 +46,14 @@ class MEME:
         """
         for key, value in self.dataset['info'].items():
             print('{}: {}'.format(key, value))
+
+    def loadImgs(self, ids=[]):
+        """
+        Load caption_links with the specified ids.
+        :param ids (int array)       : integer ids specifying img
+        :return: imgs (object array) : loaded img objects
+        """
+        if type(ids) == int:
+            return [self.imgs[ids]]
+        else:
+            return [self.imgs[id] for id in ids]

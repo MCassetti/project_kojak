@@ -4,6 +4,7 @@ import torch.nn as nn
 import pickle
 import os
 import json
+import nltk
 from PIL import Image
 from memelookup import MEME
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
@@ -14,7 +15,7 @@ from torchvision import transforms
 
 current_dir = os.getcwd()
 data_dir = '/data/'
-image_dir = '/images/resized/'
+image_dir = '/image_resized/'
 model_dir = '/models/'
 vocab_path = current_dir + data_dir + 'vocab.pkl'
 ids_path = current_dir + data_dir + 'ids.pkl'
@@ -42,21 +43,30 @@ class memeDataset(DataLoader):
         self.ids = list(self.meme.caps.keys())
         self.vocab = vocab
         self.transform = transform
-
+        self.root = root
 
     def __getitem__(self,index):
         """Returns image and data caption pair"""
         meme = self.meme
-        print(meme)
         vocab = self.vocab
         cap_id = self.ids[index]
         caption = meme.caps[cap_id]['caption']
         img_id = meme.caps[cap_id]['image_id']
         path = meme.loadImgs(img_id)[0]['file_name']
+        print('loading image from path:',os.path.join(self.root, path))
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
         vocab = self.vocab
         if self.transform is not None:
             image = self.transform(image)
+
+        # Convert caption (string) to word ids.
+        tokens = nltk.tokenize.word_tokenize(str(caption).lower())
+        print(tokens)
+        caption = []
+        caption.append(vocab('<start>'))
+        caption.extend([vocab(token) for token in tokens])
+        caption.append(vocab('<end>'))
+
         target = torch.Tensor(caption)
         return image, target
 
@@ -75,10 +85,9 @@ if __name__ == '__main__':
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
     json = 'captions.json'
-    vocab = ['one','two','three','caption']
-    ids = ''
+    vocab = {'one':1,'two':2,'three':3,'caption':4}
+    ids = [0,1]
     #caption_file = 'captions.json'
-    root = current_dir
     # create DataLoader from my meme dataset
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
     # my captions: a tensor of shape (batch_size, padded_length)
@@ -90,7 +99,7 @@ if __name__ == '__main__':
         transforms.Normalize((0.485, 0.456, 0.406),
                              (0.229, 0.224, 0.225))])
 
-    memedata = memeDataset(root=root,
+    memedata = memeDataset(root=image_path,
                            json=json,
                            vocab=vocab,
                            ids=ids,
@@ -105,6 +114,7 @@ if __name__ == '__main__':
 
     total_step = len(data_loader)
 
+
     # build models
     encoder = EncoderCNN(embed_size).to(device)
     decoder = DecoderRNN(embed_size, hidden_size, len(vocab), num_layers).to(device)
@@ -116,7 +126,7 @@ if __name__ == '__main__':
 
     for epoch in range(num_epochs):
         for i, (images, captions, lengths) in enumerate(data_loader):
-
+            print(images,captions,lengths)
             # Set mini-batch dataset
             images = images.to(device)
             captions = captions.to(device)
