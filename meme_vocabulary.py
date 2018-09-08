@@ -37,6 +37,7 @@ def make_vocab(json):
     vocab = Vocabulary()
     vocab.add_word('<pad>')
     vocab.add_word('<start>')
+    vocab.add_word('<pause>') #to deliniate top and bottom meme caption
     vocab.add_word('<end>')
     vocab.add_word('<unk>')
     # build the vocab
