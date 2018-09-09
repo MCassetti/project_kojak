@@ -15,7 +15,7 @@ embed_size = 256
 hidden_size = 512
 batch_size = 128
 num_layers = 2
-max_seq_length = 100
+max_seq_length = 8
 
 
 def load_state_dicts(state, model):
@@ -31,7 +31,7 @@ def load_state_dicts(state, model):
 def load_image(image_path,transform):
     image = Image.open(image_path)
     image = image.resize([224, 224], Image.LANCZOS)
-    #image.show()
+    image.show()
     if transform is not None:
         image = transform(image).unsqueeze(0)
 
@@ -42,8 +42,8 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
     model_path = current_dir + '/models/'
-    encoder_path = model_path +  'encoder-1-85.ckpt'
-    decoder_path = model_path +  'decoder-1-85.ckpt'
+    encoder_path = model_path +  'encoder-2-95.ckpt'
+    decoder_path = model_path +  'decoder-2-95.ckpt'
     image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
 
     with open(vocab_path, 'rb') as f:
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     image_tensor = load_image(image_path, transform).to(device)
     feature = encoder(image_tensor)
-    sampled_ids = decoder.sample(feature)
+    sampled_ids = decoder.greedy(feature)
     sampled_ids = sampled_ids[0].cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
     sampled_caption = []
 
