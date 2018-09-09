@@ -29,13 +29,15 @@ embed_size = 256
 hidden_size = 512
 batch_size = 128
 num_workers = 2
-num_layers = 2
+num_layers = 3
 num_epochs = 5
 learning_rate = 0.001
 crop_size = 224
-save_step = 100
+save_step = 5
 log_step = 5
 shuffle = True
+
+
 
 class memeDataset(DataLoader):
     """MEME Custom Dataset compatible with torch.utils.data.DataLoader."""
@@ -158,6 +160,7 @@ if __name__ == '__main__':
         for i, (images, captions, lengths) in enumerate(data_loader):
             # Set mini-batch dataset
             minibatch_start = timeit.timeit()
+            tch_start = timeit.timeit()
             images = images.to(device)
             captions = captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
@@ -174,14 +177,17 @@ if __name__ == '__main__':
             # Print log info
 
             if i % log_step == 0:
+                minibatch_end = timeit.timeit()
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Perplexity: {:5.4f}'.format(epoch, num_epochs, i, total_step, loss.item(), np.exp(loss.item())))
                 print('Approx time per logstep [{}]'.format((minibatch_start - minibatch_end)))
             # Save the model checkpoints
             if (i+1) % save_step == 0:
+
+
                 torch.save(decoder.state_dict(), os.path.join(
                     model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
                 torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
-            minibatch_end = timeit.timeit()
+
         epoch_end = timeit.timeit()
         if i % log_step == 0:
             print('Approx time per epoch {}'.format((epoch_start - epoch_end)))
