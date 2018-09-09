@@ -37,10 +37,7 @@ def load_image(image_path,transform):
 
     return image
 
-
-
 if __name__ == '__main__':
-
 
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
@@ -48,10 +45,6 @@ if __name__ == '__main__':
     encoder_path = model_path +  'encoder-1-85.ckpt'
     decoder_path = model_path +  'decoder-1-85.ckpt'
     image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
-
-
-
-
 
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
@@ -75,7 +68,6 @@ if __name__ == '__main__':
     else:
         encoder.float().eval()
         decoder.float().eval()
-
 
     image_tensor = load_image(image_path, transform).to(device)
     feature = encoder(image_tensor)
