@@ -10,40 +10,46 @@ pause_token = ' <pause> ' #hoping to strip out later anyways
 image_id = 0
 info_dict = {"description":"meme data set","keys":"image_id"}
 id = 0
-caption_dict = {}
-image_dict = {}
+meme_list = ['meme_captions_success-kid_first.txt']
 full_caption_dict = {}
 caption_list = []
 image_list = []
 for meme in meme_text:
+    if meme in meme_list:
+        with open(meme_caption_path + meme,'rb') as f:
+            for line in f:
+                caption_dict = {}
+                try:
 
-    with open(meme_caption_path + meme,'rb') as f:
-        for line in f:
-            try:
 
-                current_line = line.decode(errors='ignore').strip('\n').split('\t')
-                tag = current_line[0].replace('top caption:','').replace('\"','')
-                top_caption = current_line[1].replace('top caption:','').replace('\"','')
-                bottom_caption = current_line[2].replace('bottom_caption:','').replace('\"','')
-                caption = top_caption.lstrip() + pause_token + bottom_caption.lstrip()
+                    current_line = line.decode(errors='ignore').strip('\n').split('\t')
+                    tag = meme.replace('.txt','').replace('meme_captions_','')
+                    top_caption = current_line[1].replace('top caption:','').replace('\"','')
+                    bottom_caption = current_line[2].replace('bottom_caption:','').replace('\"','')
+                    caption = top_caption.lstrip() + pause_token + bottom_caption.lstrip()
+                    image = tag + '.jpg'
+                    if caption not in caption_dict.values():
+                        print(id)
+                        print(caption)
+                        caption_dict['image_id'] = image_id
+                        caption_dict['caption'] = caption
+                        caption_dict['id'] = id
+                        caption_list.append(caption_dict)
 
-                image = tag + '.jpg'
-                caption_dict['image_id'] = image_id
-                caption_dict['caption'] = caption
-                caption_dict['id'] = id
-                image_dict['file_name'] = image
-                image_dict['image_id'] = image_id
+                        id += 1
+                        if id % 100 == 0:
+                            print(caption,tag,image)
 
-                caption_list.append(caption_dict)
-                image_list.append(image_dict)
-                id += 1
-                if id % 100 == 0:
-                    print(caption,tag,image)
-            except:
-                "skipping caption, split did not work..."
-                continue
+                except:
+                    "skipping caption, split did not work..."
+                    continue
 
-        image_id +=1 # image ids
+
+            image_dict = {}
+            image_dict['file_name'] = image
+            image_dict['id'] = image_id
+            image_list.append(image_dict)
+            image_id +=1 # image ids
 
 full_caption_dict['info'] = info_dict
 full_caption_dict['captions'] = caption_list

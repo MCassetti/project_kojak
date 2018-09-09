@@ -4,6 +4,7 @@ import torch.nn as nn
 import pickle
 import os
 import json
+import timeit
 import nltk
 import numpy as np
 from PIL import Image
@@ -33,7 +34,7 @@ num_epochs = 5
 learning_rate = 0.001
 crop_size = 224
 save_step = 100
-log_step = 10
+log_step = 5
 shuffle = True
 
 class memeDataset(DataLoader):
@@ -55,18 +56,22 @@ class memeDataset(DataLoader):
         caption = meme.caps[cap_id]['caption']
         img_id = meme.caps[cap_id]['image_id']
         path = meme.loadImgs(img_id)[0]['file_name']
-        print('loading image from path:',os.path.join(self.root, path))
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
         vocab = self.vocab
         if self.transform is not None:
             image = self.transform(image)
 
         # Convert caption (string) to word ids.
-        tokens = nltk.tokenize.word_tokenize(str(caption).lower())
-        print(tokens)
+        caption = caption.split(' <pause> ')
+        upper_caption = caption[0]
+        lower_caption = caption[-1]
+        upper_tokens = nltk.tokenize.word_tokenize(str(upper_caption).lower())
+        lower_tokens = nltk.tokenize.word_tokenize(str(lower_caption).lower())
         caption = []
         caption.append(vocab('<start>'))
-        caption.extend([vocab(token) for token in tokens])
+        caption.extend([vocab(token) for token in upper_tokens])
+        caption.append(vocab('<pause>'))
+        caption.extend([vocab(token) for token in lower_tokens])
         caption.append(vocab('<end>'))
 
         target = torch.Tensor(caption)
@@ -147,14 +152,15 @@ if __name__ == '__main__':
     criterion = nn.CrossEntropyLoss()
     params = list(decoder.parameters()) + list(encoder.linear.parameters()) + list(encoder.bn.parameters())
     optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
-
+    print('you are here')
     for epoch in range(num_epochs):
+        epoch_start = timeit.timeit()
         for i, (images, captions, lengths) in enumerate(data_loader):
             # Set mini-batch dataset
+            minibatch_start = timeit.timeit()
             images = images.to(device)
             captions = captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-            print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
             outputs = decoder(features, captions, lengths)
@@ -166,11 +172,16 @@ if __name__ == '__main__':
 
             ## Make this your own...add a visualizer
             # Print log info
+
             if i % log_step == 0:
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Perplexity: {:5.4f}'.format(epoch, num_epochs, i, total_step, loss.item(), np.exp(loss.item())))
-
+                print('Approx time per logstep [{}]'.format((minibatch_start - minibatch_end)))
             # Save the model checkpoints
             if (i+1) % save_step == 0:
                 torch.save(decoder.state_dict(), os.path.join(
                     model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
                 torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+            minibatch_end = timeit.timeit()
+        epoch_end = timeit.timeit()
+        if i % log_step == 0:
+            print('Approx time per epoch {}'.format((epoch_start - epoch_end)))
