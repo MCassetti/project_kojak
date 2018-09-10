@@ -37,7 +37,7 @@ num_layers = 3
 num_epochs = 5
 learning_rate = 0.001
 crop_size = 224
-save_step = 5
+save_step = 20
 log_step = 5
 shuffle = True
 

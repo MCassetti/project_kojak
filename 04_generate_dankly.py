@@ -42,8 +42,8 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
     model_path = current_dir + '/models/'
-    encoder_path = model_path +  '/first_attempt/encoder-2-95.ckpt'
-    decoder_path = model_path +  '/first_attempt/decoder-2-95.ckpt'
+    encoder_path = model_path +  '/encoder-5-80.ckpt'
+    decoder_path = model_path +  '/decoder-5-80.ckpt'
     image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
 
     with open(vocab_path, 'rb') as f:
@@ -58,7 +58,8 @@ if __name__ == '__main__':
     encoder = EncoderCNN(embed_size)
     length = len(vocab)
     decoder = DecoderRNN(embed_size, hidden_size, length, num_layers, max_seq_length)
-
+    encoder = encoder.to(device)
+    decoder = decoder.to(device)
 
     encoder_state = torch.load(encoder_path)
     decoder_state = torch.load(decoder_path)
