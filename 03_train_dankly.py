@@ -73,8 +73,8 @@ class memeDataset(DataLoader):
         caption = caption.split(' <pause> ')
         upper_caption = caption[0]
         lower_caption = caption[-1]
-        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
-        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
+        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i in vocab.word_to_index and i not in stop]
+        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i in vocab.word_to_index and i not in stop]
 
         caption = []
         caption.append(vocab('<start>'))

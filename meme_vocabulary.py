@@ -32,39 +32,14 @@ class Vocabulary(object):
         return len(self.word_to_index)
 
 def make_vocab(json,embedding_path):
-    meme = MEME(json)
-    ids = meme.caps.keys()
-    counter = Counter()
+    # meme = MEME(json)
+    # ids = meme.caps.keys()
+    # counter = Counter()
 
     words = []
     vectors = []
     max_line_num = 100000
     stop = list(get_stop_words('en'))
-    with open(embedding_path) as f:
-
-         # for meta_word in meta_words:
-         #     words.append(meta_word)
-         #     rand_state = np.random.RandomState(42)
-         #     vectors.append(rand_state.normal(scale=0.6, size=(300, )))
-
-         for line_num, line in enumerate(f):
-
-             if line_num == max_line_num:
-                 break
-             values = line.split()  # Splits on spaces.
-             word = values[0]
-             vector = np.asarray(values[1:], dtype='float32')
-             vectors.append(vector)
-
-
-             for w in stop:
-                 w = w.replace("'","")
-                 if w not in words:
-                     words.append(w)
-                     rand_state = np.random.RandomState(42)
-                     vectors.append(rand_state.normal(scale=0.6, size=(300, )))
-                     continue
-
 
     vocab = Vocabulary()
     vocab.add_word('<pad>')
@@ -72,11 +47,31 @@ def make_vocab(json,embedding_path):
     vocab.add_word('<pause>') #to deliniate top and bottom meme caption
     vocab.add_word('<end>')
     vocab.add_word('<unk>')
-    # build the vocab
-    words = [word for word, cnt in counter.items()]
-    for i, word in enumerate(words):
-        vocab.add_word(word)
 
+    with open(embedding_path) as f:
+
+
+        for line_num, line in enumerate(f):
+
+         if line_num == max_line_num:
+             break
+         values = line.split()  # Splits on spaces.
+         word = values[0]
+
+         vocab.add_word(word)
+         vector = np.asarray(values[1:], dtype='float32')
+         vectors.append(vector)
+
+
+         for w in stop:
+             w = w.replace("'","")
+             if w not in words:
+                 words.append(w)
+                 vocab.add_word(word)
+                 rand_state = np.random.RandomState(42)
+                 vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+                 continue
+    print(len(vocab.word_to_index))
     return vocab
 
 

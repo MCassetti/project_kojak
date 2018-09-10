@@ -37,6 +37,8 @@ class DecoderRNN(nn.Module):
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         hiddens, _ = self.lstm(packed)
         outputs = self.linear(hiddens[0])
+        outputs, _ = pack_padded_sequence(outputs, lengths, batch_first=True)
+        outputs = self.drop(outputs)
         return outputs
 
     def greedy(self, features):
