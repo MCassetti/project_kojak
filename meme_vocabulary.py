@@ -1,8 +1,11 @@
 import nltk
 import pickle
 import os
+import string
 from collections import Counter
 from memelookup import MEME
+from nltk.tokenize.casual import TweetTokenizer
+tweet_tokenizer = TweetTokenizer()
 
 class Vocabulary(object):
     def __init__(self):
@@ -10,7 +13,9 @@ class Vocabulary(object):
         self.index_to_word = {}
         self.index = 0
 
+
     def add_word(self,word):
+        # if the word isn't in dictionary, go ahead and add
         if not word in self.word_to_index:
             self.word_to_index[word] = self.index
             self.index_to_word[self.index] = word
@@ -28,11 +33,19 @@ def make_vocab(json):
     meme = MEME(json)
     ids = meme.caps.keys()
     counter = Counter()
+    stop = list(string.punctuation)
     for i, id in enumerate(ids):
         caption = str(meme.caps[id]['caption'])
-        tokens = nltk.tokenize.word_tokenize(caption.lower())
+        caption = caption.replace("'","")
+        caption = caption.split(' <pause> ')
+        upper_caption = caption[0]
+        lower_caption = caption[-1]
+        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
+        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
+        tokens = upper_tokens + ['<pause>'] + lower_tokens
+
         counter.update(tokens)
-        print(caption)
+        print(tokens)
 
     vocab = Vocabulary()
     vocab.add_word('<pad>')

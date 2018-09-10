@@ -13,6 +13,10 @@ from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from meme_vocabulary import Vocabulary
+import string
+from nltk.tokenize.casual import TweetTokenizer
+tweet_tokenizer = TweetTokenizer()
+
 """ This is main driver for training the image/caption dataset"""
 """ This is my implementation of pytorch's image captioning encoderCNN and decoderRNN"""
 
@@ -60,15 +64,18 @@ class memeDataset(DataLoader):
         path = meme.loadImgs(img_id)[0]['file_name']
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
         vocab = self.vocab
+        stop = list(string.punctuation)
         if self.transform is not None:
             image = self.transform(image)
 
         # Convert caption (string) to word ids.
+        caption = caption.replace("'","")
         caption = caption.split(' <pause> ')
         upper_caption = caption[0]
         lower_caption = caption[-1]
-        upper_tokens = nltk.tokenize.word_tokenize(str(upper_caption).lower())
-        lower_tokens = nltk.tokenize.word_tokenize(str(lower_caption).lower())
+        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
+        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
+
         caption = []
         caption.append(vocab('<start>'))
         caption.extend([vocab(token) for token in upper_tokens])
