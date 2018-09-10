@@ -2,8 +2,10 @@ import nltk
 import pickle
 import os
 import string
+import numpy as np
 from collections import Counter
 from memelookup import MEME
+from stop_words import get_stop_words
 from nltk.tokenize.casual import TweetTokenizer
 tweet_tokenizer = TweetTokenizer()
 
@@ -29,23 +31,40 @@ class Vocabulary(object):
     def __len__(self):
         return len(self.word_to_index)
 
-def make_vocab(json):
+def make_vocab(json,embedding_path):
     meme = MEME(json)
     ids = meme.caps.keys()
     counter = Counter()
-    stop = list(string.punctuation)
-    for i, id in enumerate(ids):
-        caption = str(meme.caps[id]['caption'])
-        caption = caption.replace("'","")
-        caption = caption.split(' <pause> ')
-        upper_caption = caption[0]
-        lower_caption = caption[-1]
-        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
-        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
-        tokens = upper_tokens + ['<pause>'] + lower_tokens
 
-        counter.update(tokens)
-        print(tokens)
+    words = []
+    vectors = []
+    max_line_num = 100000
+    stop = list(get_stop_words('en'))
+    with open(embedding_path) as f:
+
+         # for meta_word in meta_words:
+         #     words.append(meta_word)
+         #     rand_state = np.random.RandomState(42)
+         #     vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+
+         for line_num, line in enumerate(f):
+
+             if line_num == max_line_num:
+                 break
+             values = line.split()  # Splits on spaces.
+             word = values[0]
+             vector = np.asarray(values[1:], dtype='float32')
+             vectors.append(vector)
+
+
+             for w in stop:
+                 w = w.replace("'","")
+                 if w not in words:
+                     words.append(w)
+                     rand_state = np.random.RandomState(42)
+                     vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+                     continue
+
 
     vocab = Vocabulary()
     vocab.add_word('<pad>')
@@ -63,7 +82,8 @@ def make_vocab(json):
 
 
 def main(json, vocab_path):
-    vocab = make_vocab(json)
+    embedding_path = '/Users/mcassettix/github/final_project/project_kojak' + '/data/' + 'glove.42B.300d.txt'
+    vocab = make_vocab(json,embedding_path)
     with open(vocab_path, 'wb') as f:
         pickle.dump(vocab, f)
 

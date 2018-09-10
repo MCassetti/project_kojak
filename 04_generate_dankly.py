@@ -11,6 +11,7 @@ from collections import OrderedDict
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 embed_size = 256
 hidden_size = 512
 batch_size = 128
@@ -42,8 +43,8 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
     model_path = current_dir + '/models/'
-    encoder_path = model_path +  '/encoder-5-80.ckpt'
-    decoder_path = model_path +  '/decoder-5-80.ckpt'
+    encoder_path = model_path +  '/encoder-5-100.ckpt'
+    decoder_path = model_path +  '/decoder-5-100.ckpt'
     image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
 
     with open(vocab_path, 'rb') as f:
@@ -55,20 +56,25 @@ if __name__ == '__main__':
                              (0.229, 0.224, 0.225))])
 
     # build the models
-    encoder = EncoderCNN(embed_size)
     length = len(vocab)
+    encoder = EncoderCNN(embed_size)
     decoder = DecoderRNN(embed_size, hidden_size, length, num_layers, max_seq_length)
-    encoder = encoder.to(device)
-    decoder = decoder.to(device)
 
-    encoder_state = torch.load(encoder_path)
-    decoder_state = torch.load(decoder_path)
-    if device == 'cpu':
-        encoder.eval()
-        decoder.eval()
-    else:
-        encoder.float().eval()
-        decoder.float().eval()
+    encoder = torch.load(encoder_path).float().to(device).eval()
+    decoder = torch.load(decoder_path).float().to(device).eval()
+
+    # if device == 'cpu':
+    #     encoder_state = torch.load(encoder_path).to(device).eval()
+    #     decoder_state = torch.load(decoder_path).to(device).eval()
+    #     encoder.eval()
+    #     decoder.eval()
+    # else:
+    #     encoder = encoder.to(device)
+    #     decoder = decoder.to(device)
+    #     encoder_state = torch.load(encoder_path)
+    #     decoder_state = torch.load(decoder_path)
+    #     encoder.float().eval()
+    #     decoder.float().eval()
 
     image_tensor = load_image(image_path, transform).to(device)
     feature = encoder(image_tensor)
