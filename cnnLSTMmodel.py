@@ -29,6 +29,7 @@ class DecoderRNN(nn.Module):
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seg_length = max_seq_length
+        self.drop = nn.Dropout(p=0.5, inplace=True)
 
     def forward(self, features, captions, lengths):
         """Decode image feature vectors and generates captions."""
@@ -37,18 +38,20 @@ class DecoderRNN(nn.Module):
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         hiddens, _ = self.lstm(packed)
         outputs = self.linear(hiddens[0])
-        outputs, _ = pack_padded_sequence(outputs, lengths, batch_first=True)
+        #outputs, _ = pack_padded_sequence(outputs, lengths, batch_first=True)
         outputs = self.drop(outputs)
         return outputs
 
-    def greedy(self, features):
+    def greedy(self, features, states=None):
         """Generate captions for given image features using greedy search."""
         sampled_ids = []
-        hidden = None
         inputs = features.unsqueeze(1)
         for i in range(self.max_seg_length):
-            hiddens, states = self.lstm(inputs, hidden)          # hiddens: (batch_size, 1, hidden_size)
+            hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
             outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
+            probs = F.softmax(outputs)
+            print(probs,len(probs)) 
+            print(outputs.max())
             predicted = outputs.max(dim=1)[1]                        # predicted: (batch_size)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)

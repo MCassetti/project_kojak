@@ -38,7 +38,7 @@ def make_vocab(json,embedding_path):
 
     words = []
     vectors = []
-    max_line_num = 100000
+    max_line_num = 8000
     stop = list(get_stop_words('en'))
 
     vocab = Vocabulary()

@@ -60,21 +60,26 @@ if __name__ == '__main__':
     encoder = EncoderCNN(embed_size)
     decoder = DecoderRNN(embed_size, hidden_size, length, num_layers, max_seq_length)
 
-    encoder = torch.load(encoder_path).float().to(device).eval()
-    decoder = torch.load(decoder_path).float().to(device).eval()
+    map_location = lambda storage, loc: storage
+    if torch.cuda.is_available():
+        map_location = None
+    print(torch.cuda.is_available())
+    ckpt_encoder = torch.load(encoder_path,map_location=map_location)
+    ckpt_decoder = torch.load(decoder_path,map_location=map_location)
+    print(type(encoder))
+    #print(load_state_dicts(ckpt_encoder,encoder))
+    encoder.load_state_dict(ckpt_encoder)
+    decoder.load_state_dict(ckpt_decoder)
 
-    # if device == 'cpu':
-    #     encoder_state = torch.load(encoder_path).to(device).eval()
-    #     decoder_state = torch.load(decoder_path).to(device).eval()
-    #     encoder.eval()
-    #     decoder.eval()
-    # else:
-    #     encoder = encoder.to(device)
-    #     decoder = decoder.to(device)
-    #     encoder_state = torch.load(encoder_path)
-    #     decoder_state = torch.load(decoder_path)
-    #     encoder.float().eval()
-    #     decoder.float().eval()
+    if not torch.cuda.is_available():
+        encoder.eval()
+        decoder.eval()
+    else:
+        encoder.float().eval()
+        decoder.float().eval()
+
+    ### now you can evaluate it
+
 
     image_tensor = load_image(image_path, transform).to(device)
     feature = encoder(image_tensor)

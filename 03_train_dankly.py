@@ -82,7 +82,8 @@ class memeDataset(DataLoader):
         caption.append(vocab('<pause>'))
         caption.extend([vocab(token) for token in lower_tokens])
         caption.append(vocab('<end>'))
-
+        print(caption)
+        print([vocab.index_to_word[cap] for cap in caption])
         target = torch.Tensor(caption)
         return image, target
 

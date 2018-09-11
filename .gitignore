@@ -10,3 +10,5 @@ models/
 logging*
 todo*
 glove*
+~*
+*.pptx
