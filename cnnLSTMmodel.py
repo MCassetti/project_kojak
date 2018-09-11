@@ -1,8 +1,9 @@
 import torch
+import torch.nn.functional as F
 import torch.nn as nn
 import torchvision.models as models
 from torch.nn.utils.rnn import pack_padded_sequence
-
+import numpy as np
 class EncoderCNN(nn.Module):
     def __init__(self,embed_size):
         """ """
@@ -49,10 +50,15 @@ class DecoderRNN(nn.Module):
         for i in range(self.max_seg_length):
             hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
             outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
-            probs = F.softmax(outputs)
-            print(probs,len(probs)) 
-            print(outputs.max())
-            predicted = outputs.max(dim=1)[1]                        # predicted: (batch_size)
+            tmpprobs = F.softmax(outputs.view(-1))
+            probs = tmpprobs/sum(tmpprobs)
+            probs = probs.detach().cpu().numpy()
+            outputs_flat = outputs.view(1,-1).detach().cpu().numpy()
+            index = np.random.choice(len(outputs.view(-1)) ,p=probs)
+            #print(index, type(index), list(outputs_flat)[index], type(outputs_flat))
+            predicted_max = outputs.max(dim=1)[1]                        # predicted: (batch_size)
+            predicted = torch.tensor([index], dtype=torch.long).cuda()
+            print(predicted.size(), predicted, predicted_max)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)

@@ -11,12 +11,11 @@ from collections import OrderedDict
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
 embed_size = 256
 hidden_size = 512
-batch_size = 128
+batch_size = 64
 num_layers = 2
-max_seq_length = 8
+max_seq_length = 6
 
 
 def load_state_dicts(state, model):
@@ -56,35 +55,25 @@ if __name__ == '__main__':
                              (0.229, 0.224, 0.225))])
 
     # build the models
-    length = len(vocab)
     encoder = EncoderCNN(embed_size)
+    length = len(vocab)
     decoder = DecoderRNN(embed_size, hidden_size, length, num_layers, max_seq_length)
+    encoder = encoder.to(device)
+    decoder = decoder.to(device)
 
-    map_location = lambda storage, loc: storage
-    if torch.cuda.is_available():
-        map_location = None
-    print(torch.cuda.is_available())
-    ckpt_encoder = torch.load(encoder_path,map_location=map_location)
-    ckpt_decoder = torch.load(decoder_path,map_location=map_location)
-    print(type(encoder))
-    #print(load_state_dicts(ckpt_encoder,encoder))
-    encoder.load_state_dict(ckpt_encoder)
-    decoder.load_state_dict(ckpt_decoder)
-
-    if not torch.cuda.is_available():
+    encoder_state = torch.load(encoder_path)
+    decoder_state = torch.load(decoder_path)
+    if device == 'cpu':
         encoder.eval()
         decoder.eval()
     else:
         encoder.float().eval()
         decoder.float().eval()
 
-    ### now you can evaluate it
-
-
     image_tensor = load_image(image_path, transform).to(device)
     feature = encoder(image_tensor)
     sampled_ids = decoder.greedy(feature)
-    sampled_ids = sampled_ids[0].cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
+    sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
     sampled_caption = []
 
     for word_id in sampled_ids:

@@ -25,7 +25,6 @@ data_dir = '/data/'
 image_dir = '/image_resized/'
 model_dir = '/models/'
 vocab_path = current_dir + '/vocab.pkl'
-ids_path = current_dir + data_dir + 'ids.pkl'
 caption_path = current_dir + data_dir + 'captions.json'
 image_path = current_dir + image_dir
 model_path = current_dir + model_dir
@@ -37,7 +36,7 @@ num_layers = 3
 num_epochs = 5
 learning_rate = 0.001
 crop_size = 224
-save_step = 20
+save_step = 100
 log_step = 5
 shuffle = True
 
@@ -45,7 +44,7 @@ shuffle = True
 
 class memeDataset(DataLoader):
     """MEME Custom Dataset compatible with torch.utils.data.DataLoader."""
-    def __init__(self, root, json, vocab, ids, transform=None):
+    def __init__(self, root, json, vocab, transform=None):
 
         self.image_path = image_path
         self.meme = MEME(json)
@@ -124,7 +123,6 @@ if __name__ == '__main__':
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
     json = 'captions.json'
-    ids = [0,1]
     #caption_file = 'captions.json'
     # create DataLoader from my meme dataset
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
@@ -140,7 +138,6 @@ if __name__ == '__main__':
     memedata = memeDataset(root=image_path,
                            json=json,
                            vocab=vocab,
-                           ids=ids,
                            transform=transform)
 
     data_loader = DataLoader(dataset=memedata,
@@ -190,8 +187,6 @@ if __name__ == '__main__':
                 print('Approx time per logstep [{}]'.format((minibatch_start - minibatch_end)))
             # Save the model checkpoints
             if (i+1) % save_step == 0:
-
-
                 torch.save(decoder.state_dict(), os.path.join(
                     model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
                 torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
