@@ -38,9 +38,10 @@ def make_vocab(json,embedding_path):
 
     words = []
     vectors = []
-    max_line_num = 8000
-    stop = list(get_stop_words('en'))
-
+    max_line_num = 4000
+    contract = list(get_stop_words('en'))
+    stop = list(string.punctuation) + list(string.digits)
+    print(stop)
     vocab = Vocabulary()
     vocab.add_word('<pad>')
     vocab.add_word('<start>')
@@ -53,24 +54,26 @@ def make_vocab(json,embedding_path):
 
         for line_num, line in enumerate(f):
 
-         if line_num == max_line_num:
-             break
-         values = line.split()  # Splits on spaces.
-         word = values[0]
+            if line_num == max_line_num:
+                break
 
-         vocab.add_word(word)
-         vector = np.asarray(values[1:], dtype='float32')
-         vectors.append(vector)
+            values = line.split()  # Splits on spaces.
+            word = values[0]
 
+            if word not in stop:
+                vocab.add_word(word)
+                vector = np.asarray(values[1:], dtype='float32')
+                vectors.append(vector)
 
-         for w in stop:
-             w = w.replace("'","")
-             if w not in words:
-                 words.append(w)
-                 vocab.add_word(word)
-                 rand_state = np.random.RandomState(42)
-                 vectors.append(rand_state.normal(scale=0.6, size=(300, )))
-                 continue
+            for w in contract:
+                w = w.replace("'","")
+                if w not in words:
+                    print(w)
+                    words.append(w)
+                    vocab.add_word(w)
+                    rand_state = np.random.RandomState(42)
+                    vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+
     print(len(vocab.word_to_index))
     return vocab
 
