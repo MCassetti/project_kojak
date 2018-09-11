@@ -7,6 +7,7 @@ from collections import Counter
 from memelookup import MEME
 from stop_words import get_stop_words
 from nltk.tokenize.casual import TweetTokenizer
+import re
 tweet_tokenizer = TweetTokenizer()
 
 class Vocabulary(object):
@@ -38,7 +39,7 @@ def make_vocab(json,embedding_path):
 
     words = []
     vectors = []
-    max_line_num = 4000
+    max_line_num = 3000
     contract = list(get_stop_words('en'))
     stop = list(string.punctuation) + list(string.digits)
     print(stop)
@@ -51,28 +52,30 @@ def make_vocab(json,embedding_path):
 
     with open(embedding_path) as f:
 
-
         for line_num, line in enumerate(f):
-
             if line_num == max_line_num:
                 break
 
             values = line.split()  # Splits on spaces.
             word = values[0]
-
-            if word not in stop:
+            #print(tweet_tokenizer.tokenize(word))
+            #print([char for char in word if char not in stop])
+            matching = ''.join([char for char in word if char not in stop])
+            matching = ''.join(filter(str.isalpha, matching))
+            match = (len(matching) == len(word))
+            if match:
+                print(word)
                 vocab.add_word(word)
-                vector = np.asarray(values[1:], dtype='float32')
-                vectors.append(vector)
+                # vector = np.asarray(values[1:], dtype='float32')
+                # vectors.append(vector)
 
-            for w in contract:
-                w = w.replace("'","")
-                if w not in words:
-                    print(w)
-                    words.append(w)
-                    vocab.add_word(w)
-                    rand_state = np.random.RandomState(42)
-                    vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+        for w in contract:
+            w = w.replace("'","")
+            if w not in words:
+                words.append(w)
+                vocab.add_word(w)
+                # rand_state = np.random.RandomState(42)
+                # vectors.append(rand_state.normal(scale=0.6, size=(300, )))
 
     print(len(vocab.word_to_index))
     return vocab
