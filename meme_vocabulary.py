@@ -17,9 +17,10 @@ class Vocabulary(object):
         self.index = 0
 
 
+
     def add_word(self,word):
         # if the word isn't in dictionary, go ahead and add
-        if not word in self.word_to_index:
+        if not word in self.word_to_index.keys():
             self.word_to_index[word] = self.index
             self.index_to_word[self.index] = word
             self.index += 1
@@ -42,13 +43,26 @@ def make_vocab(json,embedding_path):
     max_line_num = 1500
     contract = list(get_stop_words('en'))
     stop = list(string.punctuation) + list(string.digits)
-    print(stop)
     vocab = Vocabulary()
-    vocab.add_word('<pad>')
-    vocab.add_word('<start>')
-    vocab.add_word('<pause>') #to deliniate top and bottom meme caption
-    vocab.add_word('<end>')
-    vocab.add_word('<unk>')
+    meta_words = ['<pad>','<start>','<pause>','<end>','<unk>']
+    rand_state = np.random.RandomState(42)
+
+    for index, meta in enumerate(meta_words):
+        words.append(meta)
+        vocab.add_word(meta)
+        print(vocab.word_to_index[meta])
+        # vector = rand_state.normal(scale=0.6, size=(300, ))
+        # vectors.append(vector)
+
+    for i,w in enumerate(contract):
+       w = w.replace("'","")
+       if w not in words:
+           words.append(w)
+           vocab.add_word(w)
+           if vocab.word_to_index[w] == 40:
+               print(vocab.word_to_index[w],w.split())
+           # vector = rand_state.normal(scale=0.6, size=(300, ))
+           # vectors.append(vector)
 
     with open(embedding_path) as f:
 
@@ -64,18 +78,14 @@ def make_vocab(json,embedding_path):
             matching = ''.join(filter(str.isalpha, matching))
             match = (len(matching) == len(word))
             if match:
-                print(word)
                 vocab.add_word(word)
+                if vocab.word_to_index[word] == 40:
+                    print(vocab.word_to_index[word], word.split())
                 # vector = np.asarray(values[1:], dtype='float32')
                 # vectors.append(vector)
 
-        for w in contract:
-            w = w.replace("'","")
-            if w not in words:
-                words.append(w)
-                vocab.add_word(w)
-                # rand_state = np.random.RandomState(42)
-                # vectors.append(rand_state.normal(scale=0.6, size=(300, )))
+
+
 
     print(len(vocab.word_to_index))
     return vocab
