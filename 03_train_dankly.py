@@ -178,7 +178,6 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
 
-            ## Make this your own...add a visualizer
             # Print log info
 
             if i % log_step == 0:

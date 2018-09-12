@@ -39,7 +39,7 @@ def make_vocab(json,embedding_path):
 
     words = []
     vectors = []
-    max_line_num = 3000
+    max_line_num = 1500
     contract = list(get_stop_words('en'))
     stop = list(string.punctuation) + list(string.digits)
     print(stop)
