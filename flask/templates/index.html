@@ -26,26 +26,118 @@
     background-size: cover;
 
     } </style>//-->
+    <style>
+    h2 span {
+      color: white;
+      font: bold 24px/45px Helvetica, Sans-Serif;
+      letter-spacing: -1px;
+      background: rgb(0, 0, 0); /* fallback color */
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+   }</style>
+    <style>
+     h3 span {
+       color: white;
+       font: bold 24px/45px Helvetica, Sans-Serif;
+       letter-spacing: -1px;
+       background: rgb(0, 0, 0); /* fallback color */
+       background: rgba(0, 0, 0, 0.7);
+       padding: 10px;
+    }</style>
 
 
+   <style>
+   .image {
+   position: relative;
+   width: 100%; /* for IE 6 */
+   }</style>
+
+  <style>
+  h2 {
+     position: absolute;
+     top: 10px;
+     left: 0;
+     width: 100%;
+  }</style>
+
+  <style>
+  h3 {
+     position: absolute;
+     top:200px;
+     left: 0;
+     width: 100%;
+  }</style>
+  <style>
+  h2 span.spacer {
+     padding:0 5px;
+  }</style>
+
+  <style>
+  h3 span.spacer {
+     padding:0 5px;
+  }
+
+  .content{
+    display: flex;
+    align-content: center;
+    flex-direction: column;
+    background-color: yellow;
+  }
+
+  .mycontainer{
+    margin: 0 auto;
+    height: 224px;
+    width: 224px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 0px;
+    align-content: center;
+    flex-direction: column;
+  }
+
+  .memetext{
+    text-align: center;
+    font-weight:  bold;
+    font-size: large;
+    color: white;
+  }
+
+  .bottom{
+    background-color: blue;
+    color:white;
+  }
+
+</style>
 
 
   <title>MEME CAPTIONS LOL</title>
-  {% if filename %}
-      <h1> images </h1>
-        <img src="{{ url_for('send_file', filename=filename) }}">
-  {% else %}
-      <h1> add default image </h1>
-  {% endif %}
 
 
-  <!--  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/app.css') }}">
-  //-->
+
 </head>
 
 <body>
 
 <header class="navbar">
+</header>
+
+
+      <h1> Extremely terrible meme generator </h1>
+
+    {% if filename %}
+        <div class="mycontainer" style="background-image: url('{{url_for('send_file', filename=filename)}}')">
+          <div class="memetext">Stuff one</div>
+          <div class="memetext">Stuff two</div>
+        </div>
+        {% if caption %}
+            <!-- do thing one-->
+        {% else %}
+            <!--do thing two-->
+        {% endif %}
+    {% endif %}
+
+
+  <div>
   <form action="/upload" method="post" enctype="multipart/form-data" >
       <span class="btn btn-default btn-file">
         Browse <input type="file" name="image">
@@ -53,9 +145,8 @@
 
     <input type="submit" value="Upload your image" class="btn btn-primary">
   </form>
+</div>
 
-
-</header>
 
 </body>
 </html>
