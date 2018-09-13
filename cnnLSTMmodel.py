@@ -4,6 +4,7 @@ import torch.nn as nn
 import torchvision.models as models
 from torch.nn.utils.rnn import pack_padded_sequence
 import numpy as np
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class EncoderCNN(nn.Module):
     def __init__(self,embed_size):
         """ """

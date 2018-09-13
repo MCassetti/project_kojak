@@ -82,9 +82,11 @@ class memeDataset(DataLoader):
         caption.extend([vocab(token) for token in lower_tokens])
         caption.append(vocab('<end>'))
         #print(caption)
-        #print([vocab.index_to_word[cap] for cap in caption])
-        target = torch.Tensor(caption)
-        return image, target
+        captions = [cap[0] for cap in caption]
+        embeddings = [cap[1] for cap in caption]
+        target = torch.Tensor(captions)
+        embedding_matrix = torch.Tensor(embeddings)
+        return image, target, embedding_matrix
 
     def __len__(self):
         return len(self.ids)
@@ -96,21 +98,37 @@ def collate_fn(data):
         images: torch tensor of shape (batch_size, 3, 256, 256).
         targets: torch tensor of shape (batch_size, padded_length).
         lengths: list; valid length for each padded caption.
+        embeddings: torch tensor shape of (batch_size, word embedding dim (300)).
     """
     # Sort a data list by caption length (descending order).
+
+    info_dump = f"""
+       The data is of type {type(data)}
+       The length of the data is {len(data)}
+       The length of the first element is {len(data[0])}
+    """
+    # print(info_dump, flush=True)
+    # for index, (image,caption,embeddings) in enumerate(data):
+    #
+    #     print(f"image:{image},image size:{image.size()}")
+    #     print(f"caption:{caption},captionsize: {caption.size()}")
+    #     print(f"embeddings:{embeddings}, embedding_size:{embeddings.size()}")
+
     data.sort(key=lambda x: len(x[1]), reverse=True)
-    images, captions = zip(*data)
+    #print(data)
+    images, captions, embedding_matrix = zip(*data)
 
     # Merge images (from tuple of 3D tensor to 4D tensor).
     images = torch.stack(images, 0)
-
+    print(captions,flush=True)
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
     targets = torch.zeros(len(captions), max(lengths)).long()
+    #should I merge the matrix from 2D to 3D??? if so why and how come 
     for i, cap in enumerate(captions):
         end = lengths[i]
         targets[i, :end] = cap[:end]
-    return images, targets, lengths
+    return images, targets, lengths, embedding_matrix
 
 
 if __name__ == '__main__':
@@ -119,6 +137,8 @@ if __name__ == '__main__':
     # open image and caption files
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
+    embedding_matrix = np.asarray(vocab.embedding_matrix)
+    #print(embedding_matrix.shape, embedding_matrix)
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
@@ -158,19 +178,19 @@ if __name__ == '__main__':
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     params = list(decoder.parameters()) + list(encoder.linear.parameters()) + list(encoder.bn.parameters())
-    print('you are here')
+
     for epoch in range(num_epochs):
         learning_rate = learning_rate/5
         optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
-        for i, (images, captions, lengths) in enumerate(data_loader):
+        for i, (images, captions, lengths, embeddings) in enumerate(data_loader):
             # Set mini-batch dataset
             minibatch_start = timeit.timeit()
             tch_start = timeit.timeit()
             images = images.to(device)
             captions = captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
-            print(targets.size())
+            #print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
             outputs = decoder(features, captions, lengths)
