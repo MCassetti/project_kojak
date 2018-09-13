@@ -124,7 +124,7 @@ def collate_fn(data):
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
     targets = torch.zeros(len(captions), max(lengths)).long()
-    #should I merge the matrix from 2D to 3D??? if so why and how come 
+    #should I merge the matrix from 2D to 3D??? if so why and how come
     for i, cap in enumerate(captions):
         end = lengths[i]
         targets[i, :end] = cap[:end]
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # open image and caption files
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
-    embedding_matrix = np.asarray(vocab.embedding_matrix)
+
     #print(embedding_matrix.shape, embedding_matrix)
     #
     # with open(ids_file,'rb') as f:
@@ -189,7 +189,8 @@ if __name__ == '__main__':
             tch_start = timeit.timeit()
             images = images.to(device)
             captions = captions.to(device)
-            targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
+            embeddings = embeddings.to(device)
+            targets = pack_padded_sequence(captions, lengths, batch_first=True)[0] #what are the
             #print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
