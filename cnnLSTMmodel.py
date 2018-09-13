@@ -24,18 +24,26 @@ class EncoderCNN(nn.Module):
         return features
 
 class DecoderRNN(nn.Module):
-    def __init__(self,embed_size,hidden_size,vocab_size, embedding_matrx, num_layers,max_seq_length = 20):
+    def __init__(self,embed_size,hidden_size, vocab_size, embedding_matrix, num_layers,max_seq_length = 20):
         """Build layers and set hyper params"""
         super(DecoderRNN, self).__init__()
+        if not isinstance(embedding_matrix, torch.Tensor):
+            embedding_matrix = torch.FloatTensor(embedding_matrix).to(device)
+        vocab_size = embedding_matrix.size(0)
+        embed_size = embedding_matrix.size(1)
         self.embed = nn.Embedding(vocab_size, embed_size)
+        self.embed.weight = nn.Parameter(embedding_matrix)
+        self.embed.requires_grad = True
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seg_length = max_seq_length
         self.drop = nn.Dropout(p=0.5, inplace=True)
 
-    def forward(self, features, captions, embeddings, lengths):
+    def forward(self, features, captions, lengths):
         """Decode image feature vectors and generates captions."""
         embeddings = self.embed(captions)
+        print(embeddings.size())
+        print(features.unsqueeze(1).size())
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         hiddens, _ = self.lstm(packed)

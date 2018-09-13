@@ -117,18 +117,25 @@ def collate_fn(data):
     data.sort(key=lambda x: len(x[1]), reverse=True)
     #print(data)
     images, captions, embedding_matrix = zip(*data)
-
+    print(type(images),type(captions),type(embedding_matrix))
+    print(len(images),len(captions),len(embedding_matrix))
     # Merge images (from tuple of 3D tensor to 4D tensor).
     images = torch.stack(images, 0)
-    print(captions,flush=True)
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
+    print("len emb matrix",max(lengths))
     targets = torch.zeros(len(captions), max(lengths)).long()
+    embedding_target = torch.zeros(len(captions), max(lengths), 300).long()
     #should I merge the matrix from 2D to 3D??? if so why and how come
     for i, cap in enumerate(captions):
         end = lengths[i]
         targets[i, :end] = cap[:end]
-    return images, targets, lengths, embedding_matrix
+
+    for i, embed in enumerate(embedding_matrix):
+        end = lengths[i]
+        embedding_target[i, :end] = embed[:end]
+
+    return images, targets, lengths, embedding_target
 
 
 if __name__ == '__main__':
@@ -138,8 +145,6 @@ if __name__ == '__main__':
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
 
-    embedding_matrix = np.asarray(vocab.embedding_matrix)
-    print(embedding_matrix.shape)
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
@@ -174,7 +179,7 @@ if __name__ == '__main__':
 
     # build models
     encoder = EncoderCNN(embed_size).to(device)
-    decoder = DecoderRNN(embed_size, hidden_size, len(vocab), embedding_matrix, num_layers).to(device)
+    decoder = DecoderRNN(embed_size, hidden_size, len(vocab), vocab.embedding_matrix, num_layers).to(device)
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -195,7 +200,7 @@ if __name__ == '__main__':
             #print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
-            outputs = decoder(features, captions, embeddings,lengths)
+            outputs = decoder(features, captions, lengths)
             loss = criterion(outputs, targets)
             decoder.zero_grad()
             encoder.zero_grad()
