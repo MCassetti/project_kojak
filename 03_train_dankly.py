@@ -28,7 +28,7 @@ vocab_path = current_dir + '/vocab.pkl'
 caption_path = current_dir + data_dir + 'captions.json'
 image_path = current_dir + image_dir
 model_path = current_dir + model_dir
-embed_size = 256
+embed_size = 300
 hidden_size = 512
 batch_size = 128
 num_workers = 2
@@ -95,7 +95,7 @@ class memeDataset(DataLoader):
 def collate_fn(data):
     """Creates mini-batch tensors from the list of tuples (image, caption).
     Returns:
-        images: torch tensor of shape (batch_size, 3, 256, 256).
+        images: torch tensor of shape (batch_size, 3, 300, 300).
         targets: torch tensor of shape (batch_size, padded_length).
         lengths: list; valid length for each padded caption.
         embeddings: torch tensor shape of (batch_size, word embedding dim (300)).
