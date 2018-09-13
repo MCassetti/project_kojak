@@ -14,21 +14,24 @@ class Vocabulary(object):
     def __init__(self):
         self.word_to_index = {}
         self.index_to_word = {}
+        self.embedding_matrix = []
         self.index = 0
 
 
 
-    def add_word(self,word):
+    def add_word(self,word,vector):
         # if the word isn't in dictionary, go ahead and add
         if not word in self.word_to_index.keys():
             self.word_to_index[word] = self.index
             self.index_to_word[self.index] = word
+            self.embedding_matrix.append(vector)
             self.index += 1
+
 
     def __call__(self, word):
         if not word in self.word_to_index:
-            return self.word_to_index['<unk>']
-        return self.word_to_index[word]
+            return self.word_to_index['<unk>'], self.embedding_matrix[self.word_to_word['<unk>']]
+        return self.word_to_index[word], self.embedding_matrix[self.word_to_index[word]]
 
     def __len__(self):
         return len(self.word_to_index)
@@ -39,8 +42,7 @@ def make_vocab(json,embedding_path):
     # counter = Counter()
 
     words = []
-    vectors = []
-    max_line_num = 1500
+    max_line_num = 800
     contract = list(get_stop_words('en'))
     stop = list(string.punctuation) + list(string.digits)
     vocab = Vocabulary()
@@ -49,20 +51,17 @@ def make_vocab(json,embedding_path):
 
     for index, meta in enumerate(meta_words):
         words.append(meta)
-        vocab.add_word(meta)
-        print(vocab.word_to_index[meta])
-        # vector = rand_state.normal(scale=0.6, size=(300, ))
-        # vectors.append(vector)
+        vector = rand_state.normal(scale=0.6, size=(300, ))
+        vocab.add_word(meta,vector)
+
 
     for i,w in enumerate(contract):
        w = w.replace("'","")
        if w not in words:
            words.append(w)
-           vocab.add_word(w)
-           if vocab.word_to_index[w] == 40:
-               print(vocab.word_to_index[w],w.split())
-           # vector = rand_state.normal(scale=0.6, size=(300, ))
-           # vectors.append(vector)
+           vector = rand_state.normal(scale=0.6, size=(300, ))
+           vocab.add_word(w,vector)
+
 
     with open(embedding_path) as f:
 
@@ -78,15 +77,13 @@ def make_vocab(json,embedding_path):
             matching = ''.join(filter(str.isalpha, matching))
             match = (len(matching) == len(word))
             if match:
-                vocab.add_word(word)
-                if vocab.word_to_index[word] == 40:
-                    print(vocab.word_to_index[word], word.split())
-                # vector = np.asarray(values[1:], dtype='float32')
-                # vectors.append(vector)
+                vector = np.asarray(values[1:], dtype='float32')
+                vocab.add_word(word,vector)
 
 
 
-
+    #print(vocab.word_to_index['one'],vocab.word_to_index['does'],vocab.word_to_index['not'],vocab.word_to_index['simply'])
+    print(len(vocab.embedding_matrix))
     print(len(vocab.word_to_index))
     return vocab
 
@@ -97,6 +94,8 @@ def main(json, vocab_path):
     vocab = make_vocab(json,embedding_path)
     with open(vocab_path, 'wb') as f:
         pickle.dump(vocab, f)
+
+
 
 if __name__ == '__main__':
     current_dir = os.getcwd()

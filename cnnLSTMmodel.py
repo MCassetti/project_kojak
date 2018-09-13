@@ -57,7 +57,7 @@ class DecoderRNN(nn.Module):
             index = np.random.choice(len(outputs.view(-1)) ,p=probs)
             #print(index, type(index), list(outputs_flat)[index], type(outputs_flat))
             predicted_max = outputs.max(dim=1)[1]                        # predicted: (batch_size)
-            predicted = torch.tensor([index], dtype=torch.long).cuda()
+            predicted = torch.tensor([index], dtype=torch.long).to(device)
             print(predicted.size(), predicted, predicted_max)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)

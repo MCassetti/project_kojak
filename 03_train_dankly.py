@@ -33,8 +33,8 @@ hidden_size = 512
 batch_size = 128
 num_workers = 2
 num_layers = 3
-num_epochs = 5
-learning_rate = 0.001
+num_epochs = 20
+learning_rate = 0.1
 crop_size = 224
 save_step = 100
 log_step = 5
@@ -81,8 +81,8 @@ class memeDataset(DataLoader):
         caption.append(vocab('<pause>'))
         caption.extend([vocab(token) for token in lower_tokens])
         caption.append(vocab('<end>'))
-        print(caption)
-        print([vocab.index_to_word[cap] for cap in caption])
+        #print(caption)
+        #print([vocab.index_to_word[cap] for cap in caption])
         target = torch.Tensor(caption)
         return image, target
 
@@ -158,9 +158,10 @@ if __name__ == '__main__':
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
     params = list(decoder.parameters()) + list(encoder.linear.parameters()) + list(encoder.bn.parameters())
-    optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
     print('you are here')
     for epoch in range(num_epochs):
+        learning_rate = learning_rate/5
+        optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths) in enumerate(data_loader):
             # Set mini-batch dataset
@@ -169,6 +170,7 @@ if __name__ == '__main__':
             images = images.to(device)
             captions = captions.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
+            print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
             outputs = decoder(features, captions, lengths)
