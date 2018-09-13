@@ -138,7 +138,8 @@ if __name__ == '__main__':
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
 
-    #print(embedding_matrix.shape, embedding_matrix)
+    embedding_matrix = np.asarray(vocab.embedding_matrix)
+    print(embedding_matrix.shape)
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
@@ -173,7 +174,7 @@ if __name__ == '__main__':
 
     # build models
     encoder = EncoderCNN(embed_size).to(device)
-    decoder = DecoderRNN(embed_size, hidden_size, len(vocab), num_layers).to(device)
+    decoder = DecoderRNN(embed_size, hidden_size, len(vocab), embedding_matrix, num_layers).to(device)
 
     # Loss and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -194,7 +195,7 @@ if __name__ == '__main__':
             #print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
-            outputs = decoder(features, captions, lengths)
+            outputs = decoder(features, captions, embeddings,lengths)
             loss = criterion(outputs, targets)
             decoder.zero_grad()
             encoder.zero_grad()

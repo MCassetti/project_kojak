@@ -24,7 +24,7 @@ class EncoderCNN(nn.Module):
         return features
 
 class DecoderRNN(nn.Module):
-    def __init__(self,embed_size,hidden_size,vocab_size,num_layers,max_seq_length = 20):
+    def __init__(self,embed_size,hidden_size,vocab_size, embedding_matrx, num_layers,max_seq_length = 20):
         """Build layers and set hyper params"""
         super(DecoderRNN, self).__init__()
         self.embed = nn.Embedding(vocab_size, embed_size)
@@ -33,7 +33,7 @@ class DecoderRNN(nn.Module):
         self.max_seg_length = max_seq_length
         self.drop = nn.Dropout(p=0.5, inplace=True)
 
-    def forward(self, features, captions, lengths):
+    def forward(self, features, captions, embeddings, lengths):
         """Decode image feature vectors and generates captions."""
         embeddings = self.embed(captions)
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
