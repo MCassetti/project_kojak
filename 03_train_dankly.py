@@ -30,13 +30,13 @@ image_path = current_dir + image_dir
 model_path = current_dir + model_dir
 embed_size = 300
 hidden_size = 512
-batch_size = 128
+batch_size = 1024
 num_workers = 2
 num_layers = 3
-num_epochs = 20
-learning_rate = 0.1
+num_epochs = 100
+learning_rate = 0.01
 crop_size = 224
-save_step = 100
+save_step = 1000
 log_step = 5
 shuffle = True
 
@@ -107,7 +107,7 @@ def collate_fn(data):
        The length of the data is {len(data)}
        The length of the first element is {len(data[0])}
     """
-    # print(info_dump, flush=True)
+    #print(info_dump, flush=True)
     # for index, (image,caption,embeddings) in enumerate(data):
     #
     #     print(f"image:{image},image size:{image.size()}")
@@ -117,13 +117,13 @@ def collate_fn(data):
     data.sort(key=lambda x: len(x[1]), reverse=True)
     #print(data)
     images, captions, embedding_matrix = zip(*data)
-    print(type(images),type(captions),type(embedding_matrix))
-    print(len(images),len(captions),len(embedding_matrix))
+    #print(type(images),type(captions),type(embedding_matrix))
+    #print(len(images),len(captions),len(embedding_matrix))
     # Merge images (from tuple of 3D tensor to 4D tensor).
     images = torch.stack(images, 0)
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
-    print("len emb matrix",max(lengths))
+    #print("len emb matrix",max(lengths))
     targets = torch.zeros(len(captions), max(lengths)).long()
     embedding_target = torch.zeros(len(captions), max(lengths), 300).long()
     #should I merge the matrix from 2D to 3D??? if so why and how come
@@ -186,11 +186,13 @@ if __name__ == '__main__':
     params = list(decoder.parameters()) + list(encoder.linear.parameters()) + list(encoder.bn.parameters())
 
     for epoch in range(num_epochs):
-        learning_rate = learning_rate/5
+        if epoch % 10 == 0:
+            learning_rate = learning_rate/5
         optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths, embeddings) in enumerate(data_loader):
             # Set mini-batch dataset
+            optimizer.zero_grad()
             minibatch_start = timeit.timeit()
             tch_start = timeit.timeit()
             images = images.to(device)

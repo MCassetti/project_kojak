@@ -42,7 +42,7 @@ def make_vocab(json,embedding_path):
     # counter = Counter()
 
     words = []
-    max_line_num = 800
+    max_line_num = 2000
     contract = list(get_stop_words('en'))
     stop = list(string.punctuation) + list(string.digits)
     vocab = Vocabulary()

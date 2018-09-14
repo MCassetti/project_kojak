@@ -37,13 +37,13 @@ class DecoderRNN(nn.Module):
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seg_length = max_seq_length
-        self.drop = nn.Dropout(p=0.5, inplace=True)
+        self.drop = nn.Dropout(p=0.0, inplace=True)
 
     def forward(self, features, captions, lengths):
         """Decode image feature vectors and generates captions."""
         embeddings = self.embed(captions)
-        print(embeddings.size())
-        print(features.unsqueeze(1).size())
+        #print(embeddings.size())
+        #print(features.unsqueeze(1).size())
         embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
         hiddens, _ = self.lstm(packed)
@@ -64,10 +64,19 @@ class DecoderRNN(nn.Module):
             probs = probs.detach().cpu().numpy()
             outputs_flat = outputs.view(1,-1).detach().cpu().numpy()
             index = np.random.choice(len(outputs.view(-1)) ,p=probs)
+            
+            #if i == 0:
+            #    index = 179
+            #if i == 1:
+            #    index = 37
+            #if i == 2:
+            #    index = 91
+            #if i == 3:
+            #    index = 720
             #print(index, type(index), list(outputs_flat)[index], type(outputs_flat))
             predicted_max = outputs.max(dim=1)[1]                        # predicted: (batch_size)
             predicted = torch.tensor([index], dtype=torch.long).to(device)
-            print(predicted.size(), predicted, predicted_max)
+            #print(predicted.size(), predicted, predicted_max)
             sampled_ids.append(predicted)
             inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
