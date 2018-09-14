@@ -29,7 +29,7 @@ caption_path = current_dir + data_dir + 'captions.json'
 image_path = current_dir + image_dir
 model_path = current_dir + model_dir
 embed_size = 300
-hidden_size = 512
+hidden_size = embed_size
 batch_size = 1024
 num_workers = 2
 num_layers = 3
@@ -191,6 +191,10 @@ if __name__ == '__main__':
         optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths, embeddings) in enumerate(data_loader):
+            X_captions = captions[:, :-1]
+            X_captions = X_captions.to(device)
+            y_captions = captions[:, 1:]
+            y_captions = y_captions.to(device)
             # Set mini-batch dataset
             optimizer.zero_grad()
             minibatch_start = timeit.timeit()
@@ -199,11 +203,13 @@ if __name__ == '__main__':
             captions = captions.to(device)
             embeddings = embeddings.to(device)
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0] #what are the
+            print('targets', targets.shape)
             #print(targets.size())
             # Forward, backward and optimize
             features = encoder(images)
-            outputs = decoder(features, captions, lengths)
-            loss = criterion(outputs, targets)
+            outputs = decoder(features, X_captions, lengths)
+            print('outputs', outputs.shape)
+            loss = criterion(outputs, y_captions)
             decoder.zero_grad()
             encoder.zero_grad()
             loss.backward()

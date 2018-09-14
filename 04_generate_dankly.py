@@ -15,7 +15,7 @@ embed_size = 300
 hidden_size = 512
 batch_size = 64
 num_layers = 2
-max_seq_length = 7
+max_seq_length = 6
 
 def load_state_dicts(state, model):
     state_dict = state['state_dict']
@@ -41,8 +41,8 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
     model_path = current_dir + '/models/'
-    encoder_path = model_path +  '/encoder-9-200.ckpt'
-    decoder_path = model_path +  '/decoder-9-200.ckpt'
+    encoder_path = model_path +  '/encoder-50-20.ckpt'
+    decoder_path = model_path +  '/decoder-50-20.ckpt'
     image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
     meta_tokens = ['<pad>','<start>','<pause>','<unk>']
     with open(vocab_path, 'rb') as f:
@@ -84,6 +84,23 @@ if __name__ == '__main__':
                 continue
             sampled_caption.append(word)
         sentence = ' '.join(sampled_caption)
+
+        # Print out the image and the generated caption
+        print("greedy algo:", sentence)
+    for _ in range(1):
+        sampled_ids = decoder.beam_search(feature)
+        #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
+        sampled_caption = []
+        for seq, score in sampled_ids:
+            print(seq,score) 
+        #for word_id in sampled_ids:
+        #    word = vocab.index_to_word[word_id]
+        #    if word == '<end>':
+        #        break
+        #    if word in meta_tokens:
+        #        continue
+        #    sampled_caption.append(word)
+        #sentence = ' '.join(sampled_caption)
 
         # Print out the image and the generated caption
         print(sentence)

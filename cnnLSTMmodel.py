@@ -36,27 +36,37 @@ class DecoderRNN(nn.Module):
         self.embed.requires_grad = True
         self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
-        self.max_seg_length = max_seq_length
+        self.max_seq_length = max_seq_length
         self.drop = nn.Dropout(p=0.0, inplace=True)
 
     def forward(self, features, captions, lengths):
         """Decode image feature vectors and generates captions."""
         embeddings = self.embed(captions)
+
+        batch_size = captions.size(0)
         #print(embeddings.size())
         #print(features.unsqueeze(1).size())
-        embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
+        print('before concat', embeddings.shape)
+        # embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
+        print('after concat', embeddings.shape)
         packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
-        hiddens, _ = self.lstm(packed)
+        print('packed', packed[0].shape)
+        print('feature size', features.shape)
+        reshaped_features = features.unsqueeze(0)
+        reshaped_features = reshaped_features.expand(3, reshaped_features.size(1), reshaped_features.size(2))
+        reshaped_features = reshaped_features.contiguous()
+        print('us feature size', reshaped_features.shape)
+        hiddens, _ = self.lstm(packed, (reshaped_features, reshaped_features))
         outputs = self.linear(hiddens[0])
         #outputs, _ = pack_padded_sequence(outputs, lengths, batch_first=True)
-        outputs = self.drop(outputs)
+        # outputs = self.drop(outputs)
         return outputs
 
     def greedy(self, features, states=None):
         """Generate captions for given image features using greedy search."""
         sampled_ids = []
         inputs = features.unsqueeze(1)
-        for i in range(self.max_seg_length):
+        for i in range(self.max_seq_length):
             hiddens, states = self.lstm(inputs, states)          # hiddens: (batch_size, 1, hidden_size)
             outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
             tmpprobs = F.softmax(outputs.view(-1))
@@ -64,7 +74,7 @@ class DecoderRNN(nn.Module):
             probs = probs.detach().cpu().numpy()
             outputs_flat = outputs.view(1,-1).detach().cpu().numpy()
             index = np.random.choice(len(outputs.view(-1)) ,p=probs)
-            
+
             #if i == 0:
             #    index = 179
             #if i == 1:
@@ -82,3 +92,30 @@ class DecoderRNN(nn.Module):
             inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
         sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
         return sampled_ids
+
+    def beam_search(self, features, states=None):
+        """ Generate captions for a give features using beam search."""
+        sampled_ids = []
+        inputs = features.unsqueeze(1)
+        data = []
+        top_n = 100
+        for i in range(self.max_seq_length):
+            hiddens,sates = self.lstm(inputs,states)
+            outputs = self.linear(hiddens.squeeze(1))
+            tmpprobs = F.softmax(outputs.view(-1))
+            probs = tmpprobs/sum(tmpprobs)
+            probs = probs.detach().cpu().numpy()
+            data.append(probs)
+        sequences = [[list(), 1.0]]
+        for row in data:
+            all_candidates = []
+            # expand each current sequence
+            for i in range(len(sequences)):
+                seq, score = sequences[i]
+                for j in range(len(row)):
+                    candidate = [seq + [j], score * -np.log(row[j])]
+                    all_candidates.append(candidate)
+                # order all candidates by score
+                ordered = sorted(all_candidates, key=lambda tup:tup[1])
+                sequences = ordered[:top_n]
+        return sequences
