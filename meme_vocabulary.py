@@ -44,7 +44,7 @@ class Vocabulary(object):
             lower_caption = caption[-1]
             upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
             lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
-            tokens = upper_tokens + ['<pause>'] + lower_tokens 
+            tokens = upper_tokens + ['<pause>'] + lower_tokens
             #print(tokens)
             counter.update(tokens)
         most_common_words = counter.most_common(max_meme_vocab)
@@ -83,7 +83,7 @@ class Vocabulary(object):
 
         self.embedding_matrix = embedding_matrix
         self.word_to_index = token_to_id
-        self.index_to_word = {id: word for id, word in self.word_to_index.items() }
+        self.index_to_word = {id: word for word, id in self.word_to_index.items() }
 
         print(most_common_words, len(most_common_words))
         #

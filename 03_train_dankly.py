@@ -15,7 +15,9 @@ from torchvision import transforms
 from meme_vocabulary import Vocabulary
 import string
 from nltk.tokenize.casual import TweetTokenizer
+from sklearn.metrics import accuracy_score
 tweet_tokenizer = TweetTokenizer()
+
 
 """ This is main driver for training the image/caption dataset"""
 """ This is my implementation of pytorch's image captioning encoderCNN and decoderRNN"""
@@ -36,7 +38,7 @@ num_layers = 3
 num_epochs = 100
 learning_rate = 0.01
 crop_size = 224
-save_step = 1000
+save_step = 1
 log_step = 5
 shuffle = True
 
@@ -82,7 +84,7 @@ class memeDataset(DataLoader):
         caption.extend([vocab(token) for token in lower_tokens])
         caption.append(vocab('<end>'))
         #print(caption)
-        captions = [cap[0] for cap in caption]
+        captions = [cap for cap in caption]
         target = torch.Tensor(captions)
 
         return image, target
@@ -122,13 +124,16 @@ def collate_fn(data):
     images = torch.stack(images, 0)
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
+    #[print("seq_length:", seq_len) for index, seq_len in enumerate(lengths) if index < 50]
+
     #print("len emb matrix",max(lengths))
     targets = torch.zeros(len(captions), max(lengths)).long()
-    embedding_target = torch.zeros(len(captions), max(lengths), 300).long()
     #should I merge the matrix from 2D to 3D??? if so why and how come
     for i, cap in enumerate(captions):
         end = lengths[i]
-        targets[i, :end] = cap[:end]
+        first_index = targets.size(1) - len(cap)
+        targets[i, first_index:] = cap
+        # targets[i, :end] = cap[:end]
 
     return images, targets, lengths
 
@@ -183,42 +188,58 @@ if __name__ == '__main__':
     for epoch in range(num_epochs):
         if epoch % 10 == 0:
             learning_rate = learning_rate/5
-        optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
+        optimizer = torch.optim.Adam(params) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
-        for i, (images, captions, lengths, embeddings) in enumerate(data_loader):
+        for i, (images, captions, lengths) in enumerate(data_loader):
+            encoder.train()
+            decoder.train()
+            optimizer.zero_grad()
+            decoder.recur_state = decoder.init_recur_state(captions.size(0))
+
             minibatch_start = timeit.timeit()
             X_captions = captions[:, :-1]
             X_captions = X_captions.to(device)
             y_captions = captions[:, 1:]
             y_captions = y_captions.to(device)
-
-            print('X_captions shape', X_captions.shape)
-            print('y_captions shape', y_captions.shape)
+            print('X', [vocab.index_to_word[X_captions[0, i].item()] for i in range(X_captions.size(1))])
+            print('y', [vocab.index_to_word[y_captions[0, i].item()] for i in range(y_captions.size(1))])
+            print('X', [vocab.index_to_word[X_captions[1, i].item()] for i in range(X_captions.size(1))])
+            print('y', [vocab.index_to_word[y_captions[1, i].item()] for i in range(y_captions.size(1))])
+            #print('X_captions shape', X_captions.shape)
+            #print('y_captions shape', y_captions.shape)
             # Set mini-batch dataset
-            optimizer.zero_grad()
-
-
 
             images = images.to(device)
             captions = captions.to(device)
-            embeddings = embeddings.to(device)
-
+            print('images shape', images.shape)
+            print('captions shape', captions.shape)
             lengths = [seq_len - 1 for seq_len in lengths]
+            print('lengths', lengths)
 
             # Forward, backward and optimize
             features = encoder(images)
+
+            print('features 1', features[0])
+            print('features 2', features[1])
             outputs = decoder(features, X_captions, lengths)
             print('outputs', outputs.shape)
             #targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
-
-            targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
+            targets = y_captions.view(-1)
+            # targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
             print('targets', targets.shape)
-            print('reshaped y captions ', y_captions.view(-1).size())
+            #print('reshaped y captions ', y_captions.view(-1).size())
             loss = criterion(outputs, targets)
+            acc = accuracy_score(targets, outputs.argmax(-1))
+            print('whole output', [vocab.index_to_word[word.item()] for word in outputs.argmax(-1)])
+            print('whole targets', [vocab.index_to_word[word.item()] for word in targets])
 
 
-            decoder.zero_grad()
-            encoder.zero_grad()
+            print('epoch acc', acc)
+
+
+
+            # decoder.zero_grad()
+            # encoder.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -229,11 +250,41 @@ if __name__ == '__main__':
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Perplexity: {:5.4f}'.format(epoch, num_epochs, i, total_step, loss.item(), np.exp(loss.item())))
                 print('Approx time per logstep [{}]'.format((minibatch_start - minibatch_end)))
             # Save the model checkpoints
-            if (i+1) % save_step == 0:
-                torch.save(decoder.state_dict(), os.path.join(
-                    model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
-                torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+            # if (i+1) % save_step == 0:
+            #     torch.save(decoder.state_dict(), os.path.join(
+            #         model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+            #     torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
 
         epoch_end = timeit.timeit()
         if i % log_step == 0:
             print('Approx time per epoch {}'.format((epoch_start - epoch_end)))
+    print('fml')
+    with torch.no_grad():
+        # encoder.eval()
+        # decoder.eval()
+        decoder.recur_state = decoder.init_recur_state(1)
+        feature = features[1:]
+        feature = features[1:]
+        X = captions[1, :-1].detach().cpu().numpy()
+        print('old feature', feature)
+        images = images.to(device)
+        image = images[1:]
+        feature = encoder(image)
+        print('new feature', feature)
+        feature = encoder(image)
+        print('new new feature', feature)
+
+        # X = ['<start>', 'super', 'rad', 'aadvark']
+        print('X words',[vocab.index_to_word[word] for word in X])
+        X = torch.LongTensor([X]).to(device)
+        y = decoder(feature, X, [X.size(1)])
+        print('X', X)
+        print('raw_y', y)
+        y = y.argmax(-1)
+        print('y', y)
+        print('y words', [vocab.index_to_word[id.item()] for id in y])
+
+
+    torch.save(decoder.state_dict(), os.path.join(
+        model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+    torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))

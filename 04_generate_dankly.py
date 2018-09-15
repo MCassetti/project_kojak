@@ -12,20 +12,20 @@ from collections import OrderedDict
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 embed_size = 300
-hidden_size = 512
+hidden_size = 300
 batch_size = 64
-num_layers = 2
-max_seq_length = 6
+num_layers = 3
+max_seq_length = 10
 
-def load_state_dicts(state, model):
-    state_dict = state['state_dict']
-    new_state_dict = OrderedDict()
-    for key, value in state_dict.items():
-        #name = key
-        name = key[7:] # remove `module.`
-        new_state_dict[key] = value
-    # load params
-    return model.load_state_dict(state['state_dict'])
+# def load_state_dicts(state, model):
+#     state_dict = state['state_dict']
+#     new_state_dict = OrderedDict()
+#     for key, value in state_dict.items():
+#         #name = key
+#         name = key[7:] # remove `module.`
+#         new_state_dict[key] = value
+#     # load params
+#     return model.load_state_dict(state['state_dict'])
 
 def load_image(image_path,transform):
     image = Image.open(image_path)
@@ -41,9 +41,9 @@ if __name__ == '__main__':
     current_dir = os.getcwd()
     vocab_path = current_dir + '/vocab.pkl'
     model_path = current_dir + '/models/'
-    encoder_path = model_path +  '/encoder-50-20.ckpt'
-    decoder_path = model_path +  '/decoder-50-20.ckpt'
-    image_path = current_dir + '/image_resized/' + 'success-kid_first.jpg'
+    encoder_path = model_path +  '/encoder-100-1.ckpt'
+    decoder_path = model_path +  '/decoder-100-1.ckpt'
+    image_path = current_dir + '/image_resized/' + 'grumpy-cat.jpg'
     meta_tokens = ['<pad>','<start>','<pause>','<unk>']
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
@@ -62,6 +62,8 @@ if __name__ == '__main__':
 
     encoder_state = torch.load(encoder_path)
     decoder_state = torch.load(decoder_path)
+    decoder.load_state_dict(decoder_state)
+    encoder.load_state_dict(encoder_state)
     if device == 'cpu':
         encoder.eval()
         decoder.eval()
@@ -70,10 +72,30 @@ if __name__ == '__main__':
         decoder.float().eval()
 
     image_tensor = load_image(image_path, transform).to(device)
-    feature = encoder(image_tensor)
-    for _ in range(50):
-        sampled_ids = decoder.greedy(feature)
-        sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
+    with torch.no_grad():
+        encoder.eval()
+        feature = encoder(image_tensor)
+        print('feature', feature)
+    # feature = torch.zeros_like(feature)
+    seed = [vocab.word_to_index['super']]
+    print('i to w', vocab.index_to_word)
+    print('w to i', vocab.word_to_index)
+
+    with torch.no_grad():
+        decoder.eval()
+        # X = ['<start>', 'super', 'rad', 'aadvark']
+        # X = [vocab.word_to_index[word] for word in X]
+        # X = torch.LongTensor([X]).to(device)
+        # y = decoder(feature, X, [X.size(1)])
+        # print('X', X)
+        # print('raw_y', y)
+        # y = y.argmax(dim=1)
+        # print('y', y)
+        # print('y words', [vocab.index_to_word[id.item()] for id in y])
+        # raise Exception()
+        decoder.recur_state = decoder.init_recur_state(1)
+        sampled_ids = decoder.greedy(feature, seed)
+        #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
         sampled_caption = []
 
         for word_id in sampled_ids:
@@ -87,15 +109,15 @@ if __name__ == '__main__':
 
         # Print out the image and the generated caption
         print("greedy algo:", sentence)
-    for _ in range(1):
-        sampled_ids = decoder.beam_search(feature)
-        #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
-        sampled_caption = []
-        for seq, score in sampled_ids:
-            print(seq,score) 
-        #for word_id in sampled_ids:
-        #    word = vocab.index_to_word[word_id]
-        #    if word == '<end>':
+    # for _ in range(1):
+    #     sampled_ids = decoder.beam_search(feature)
+    #     #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
+    #     sampled_caption = []
+    #     for seq, score in sampled_ids:
+    #         [print(vocab.index_to_word[s]) for s in seq]
+    #     #for word_id in sampled_ids:
+    #     #    word = vocab.index_to_word[word_id]
+    #     #    if word == '<end>':
         #        break
         #    if word in meta_tokens:
         #        continue
@@ -103,4 +125,4 @@ if __name__ == '__main__':
         #sentence = ' '.join(sampled_caption)
 
         # Print out the image and the generated caption
-        print(sentence)
+        # print(sentence)
