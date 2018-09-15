@@ -83,10 +83,9 @@ class memeDataset(DataLoader):
         caption.append(vocab('<end>'))
         #print(caption)
         captions = [cap[0] for cap in caption]
-        embeddings = [cap[1] for cap in caption]
         target = torch.Tensor(captions)
-        embedding_matrix = torch.Tensor(embeddings)
-        return image, target, embedding_matrix
+
+        return image, target
 
     def __len__(self):
         return len(self.ids)
@@ -116,7 +115,7 @@ def collate_fn(data):
 
     data.sort(key=lambda x: len(x[1]), reverse=True)
     #print(data)
-    images, captions, embedding_matrix = zip(*data)
+    images, captions = zip(*data)
     #print(type(images),type(captions),type(embedding_matrix))
     #print(len(images),len(captions),len(embedding_matrix))
     # Merge images (from tuple of 3D tensor to 4D tensor).
@@ -131,11 +130,7 @@ def collate_fn(data):
         end = lengths[i]
         targets[i, :end] = cap[:end]
 
-    for i, embed in enumerate(embedding_matrix):
-        end = lengths[i]
-        embedding_target[i, :end] = embed[:end]
-
-    return images, targets, lengths, embedding_target
+    return images, targets, lengths
 
 
 if __name__ == '__main__':
@@ -191,25 +186,37 @@ if __name__ == '__main__':
         optimizer = torch.optim.Adam(params, lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths, embeddings) in enumerate(data_loader):
+            minibatch_start = timeit.timeit()
             X_captions = captions[:, :-1]
             X_captions = X_captions.to(device)
             y_captions = captions[:, 1:]
             y_captions = y_captions.to(device)
+
+            print('X_captions shape', X_captions.shape)
+            print('y_captions shape', y_captions.shape)
             # Set mini-batch dataset
             optimizer.zero_grad()
-            minibatch_start = timeit.timeit()
-            tch_start = timeit.timeit()
+
+
+
             images = images.to(device)
             captions = captions.to(device)
             embeddings = embeddings.to(device)
-            targets = pack_padded_sequence(captions, lengths, batch_first=True)[0] #what are the
-            print('targets', targets.shape)
-            #print(targets.size())
+
+            lengths = [seq_len - 1 for seq_len in lengths]
+
             # Forward, backward and optimize
             features = encoder(images)
             outputs = decoder(features, X_captions, lengths)
             print('outputs', outputs.shape)
-            loss = criterion(outputs, y_captions)
+            #targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
+
+            targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
+            print('targets', targets.shape)
+            print('reshaped y captions ', y_captions.view(-1).size())
+            loss = criterion(outputs, targets)
+
+
             decoder.zero_grad()
             encoder.zero_grad()
             loss.backward()
