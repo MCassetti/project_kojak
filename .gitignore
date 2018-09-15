@@ -3,9 +3,7 @@
 __pycache__/
 /image_resized/
 .DS_Store
-*.pkl
 *.swp
-*.json
 models/
 logging*
 todo*

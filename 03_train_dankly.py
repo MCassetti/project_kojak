@@ -191,7 +191,10 @@ if __name__ == '__main__':
         optimizer = torch.optim.Adam(params) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths) in enumerate(data_loader):
-            encoder.train()
+            print('images shape', images.shape)
+            print('image', images[1])
+
+            encoder.eval()
             decoder.train()
             optimizer.zero_grad()
             decoder.recur_state = decoder.init_recur_state(captions.size(0))
@@ -224,6 +227,7 @@ if __name__ == '__main__':
             outputs = decoder(features, X_captions, lengths)
             print('outputs', outputs.shape)
             #targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
+            y_captions = y_captions.contiguous()
             targets = y_captions.view(-1)
             # targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
             print('targets', targets.shape)
@@ -260,18 +264,20 @@ if __name__ == '__main__':
             print('Approx time per epoch {}'.format((epoch_start - epoch_end)))
     print('fml')
     with torch.no_grad():
-        # encoder.eval()
-        # decoder.eval()
+        encoder.eval()
+        decoder.eval()
         decoder.recur_state = decoder.init_recur_state(1)
-        feature = features[1:]
         feature = features[1:]
         X = captions[1, :-1].detach().cpu().numpy()
         print('old feature', feature)
         images = images.to(device)
         image = images[1:]
+        print('image', image)
+        # features = encoder(images)
+        # feature = features[1:]
+        # print('new feature', feature)
         feature = encoder(image)
-        print('new feature', feature)
-        feature = encoder(image)
+        # feature = features[1:]
         print('new new feature', feature)
 
         # X = ['<start>', 'super', 'rad', 'aadvark']
@@ -284,7 +290,7 @@ if __name__ == '__main__':
         print('y', y)
         print('y words', [vocab.index_to_word[id.item()] for id in y])
 
-
+    torch.save((encoder, decoder), os.path.join(model_path, 'full_model.pt'))
     torch.save(decoder.state_dict(), os.path.join(
         model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
     torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))

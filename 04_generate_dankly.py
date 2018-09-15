@@ -28,13 +28,18 @@ max_seq_length = 10
 #     return model.load_state_dict(state['state_dict'])
 
 def load_image(image_path,transform):
-    image = Image.open(image_path)
-    image = image.resize([224, 224], Image.LANCZOS)
-    image.show()
+    image = Image.open(image_path).convert('RGB')
+    # image.resize([224, 224], Image.ANTIALIAS)
+    # image = image.resize([224, 224], Image.LANCZOS)
+    # image.show()
     if transform is not None:
-        image = transform(image).unsqueeze(0)
-
-    return image
+        image = transform(image)
+        # print("what is the size of this shit 1:", image)
+    return image.to(device)
+        # print("what is the size of this shit:",image.size())
+        # image = torch.stack(image, 0)
+        #image = transform(image).unsqueeze(0)
+    # return image
 
 if __name__ == '__main__':
 
@@ -43,7 +48,9 @@ if __name__ == '__main__':
     model_path = current_dir + '/models/'
     encoder_path = model_path +  '/encoder-100-1.ckpt'
     decoder_path = model_path +  '/decoder-100-1.ckpt'
+    full_model = model_path + '/full_model.pt'
     image_path = current_dir + '/image_resized/' + 'grumpy-cat.jpg'
+    #image_path = current_dir + '/image_resized/' + 'forever-alone.jpg'
     meta_tokens = ['<pad>','<start>','<pause>','<unk>']
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
@@ -54,26 +61,35 @@ if __name__ == '__main__':
                              (0.229, 0.224, 0.225))])
 
     # build the models
-    encoder = EncoderCNN(embed_size)
-    length = len(vocab)
-    decoder = DecoderRNN(embed_size, hidden_size, length, vocab.embedding_matrix, num_layers, max_seq_length)
-    encoder = encoder.to(device)
-    decoder = decoder.to(device)
+    # encoder = EncoderCNN(embed_size)
+    # length = len(vocab)
+    # decoder = DecoderRNN(embed_size, hidden_size, length, vocab.embedding_matrix, num_layers, max_seq_length)
+    # encoder = encoder.to(device)
+    # decoder = decoder.to(device)
+    #
+    # encoder_state = torch.load(encoder_path)
+    # decoder_state = torch.load(decoder_path)
+    # decoder.load_state_dict(decoder_state)
+    # encoder.load_state_dict(encoder_state)
+    encoder, decoder = torch.load(full_model)
+    encoder.to(device)
+    decoder.to(device)
 
-    encoder_state = torch.load(encoder_path)
-    decoder_state = torch.load(decoder_path)
-    decoder.load_state_dict(decoder_state)
-    encoder.load_state_dict(encoder_state)
     if device == 'cpu':
         encoder.eval()
         decoder.eval()
     else:
-        encoder.float().eval()
-        decoder.float().eval()
+        encoder.eval()
+        decoder.eval()
+
+
 
     image_tensor = load_image(image_path, transform).to(device)
+    image_tensor = image_tensor.unsqueeze(0)
     with torch.no_grad():
         encoder.eval()
+        print('image', image_tensor)
+        print('image shape', image_tensor.shape)
         feature = encoder(image_tensor)
         print('feature', feature)
     # feature = torch.zeros_like(feature)
@@ -82,6 +98,7 @@ if __name__ == '__main__':
     print('w to i', vocab.word_to_index)
 
     with torch.no_grad():
+        encoder.eval()
         decoder.eval()
         # X = ['<start>', 'super', 'rad', 'aadvark']
         # X = [vocab.word_to_index[word] for word in X]
