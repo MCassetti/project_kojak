@@ -74,8 +74,15 @@ class memeDataset(DataLoader):
         caption = caption.split(' <pause> ')
         upper_caption = caption[0]
         lower_caption = caption[-1]
-        upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i in vocab.word_to_index and i not in stop]
-        lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i in vocab.word_to_index and i not in stop]
+
+        upper_cap_list = list(tuple(TextBlob(upper_caption).tokens))
+        lower_cap_list = list(tuple(TextBlob(lower_caption).tokens))
+
+
+        upper_tokens = [word.lower() for word in upper_cap_list if word in vocab.word_to_index ]
+        lower_tokens = [word.lower() for word in lower_cap_list if word in vocab.word_to_index ]
+        # upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i in vocab.word_to_index and i not in stop]
+        # lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i in vocab.word_to_index and i not in stop]
 
         caption = []
         caption.append(vocab('<start>'))
@@ -225,10 +232,10 @@ if __name__ == '__main__':
 
             images = images.to(device)
             captions = captions.to(device)
-            print('images shape', images.shape)
-            print('captions shape', captions.shape)
+            #print('images shape', images.shape)
+            #print('captions shape', captions.shape)
             lengths = [seq_len - 1 for seq_len in lengths]
-            print('lengths', lengths)
+            #print('lengths', lengths)
 
             # Forward, backward and optimize
             features = encoder(images)
@@ -242,13 +249,13 @@ if __name__ == '__main__':
             # y_captions = y_captions.contiguous()
             # targets = y_captions.view(-1)
             # targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
-            print('targets', targets.shape)
+            #print('targets', targets.shape)
 
             #print('reshaped y captions ', y_captions.view(-1).size())
             loss = criterion(outputs, targets)
             acc = accuracy_score(targets, outputs.argmax(-1))
-            print('whole output', [vocab.index_to_word[word.item()] for word in outputs.argmax(-1)])
-            print('whole targets', [vocab.index_to_word[word.item()] for word in targets])
+            #print('whole output', [vocab.index_to_word[word.item()] for word in outputs.argmax(-1)])
+            #print('whole targets', [vocab.index_to_word[word.item()] for word in targets])
 
 
             print('epoch acc', acc)

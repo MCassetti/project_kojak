@@ -32,7 +32,7 @@ class Vocabulary(object):
     def make_vocab(self, json, embedding_path):
         meme = MEME(json)
         ids = meme.caps.keys()
-        stop = list(string.punctuation) + list(string.digits)
+        #stop = list(string.punctuation) #+ list(string.digits)
         counter = Counter()
         max_meme_vocab = 2000
         for i, id in enumerate(ids):
@@ -42,8 +42,22 @@ class Vocabulary(object):
             #print(caption)
             upper_caption = caption[0]
             lower_caption = caption[-1]
-            upper_tokens = [i for i in tweet_tokenizer.tokenize(upper_caption.lower()) if i not in stop]
-            lower_tokens = [i for i in tweet_tokenizer.tokenize(lower_caption.lower()) if i not in stop]
+
+            # text = text.replace('—', ' — ')
+            # text = text.replace('-', ' - ')
+
+            #print(list(tuple(TextBlob(upper_caption).tokens)))
+            #print(list(tuple(TextBlob(lower_caption).tokens)))
+            upper_cap_list = list(tuple(TextBlob(upper_caption).tokens))
+            lower_cap_list = list(tuple(TextBlob(lower_caption).tokens))
+
+
+            upper_tokens = [word.lower() for word in upper_cap_list ]
+            lower_tokens = [word.lower() for word in lower_cap_list ]
+            # upper_tokens = upper_cap_list
+            # lower_tokens = lower_cap_list
+            print(upper_tokens)
+            print(lower_tokens)
             tokens = upper_tokens + ['<pause>'] + lower_tokens
             #print(tokens)
             counter.update(tokens)

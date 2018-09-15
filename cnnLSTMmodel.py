@@ -115,9 +115,9 @@ class DecoderRNN(nn.Module):
 
         last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
         sampled_ids.append(last_token_pred.item())
-        print('last pred', last_token_pred)
+        #print('last pred', last_token_pred)
 
-        print('initial word', last_token_pred.shape)
+        #print('initial word', last_token_pred.shape)
         for _ in range(self.max_seq_length):
             last_token_pred = self(None, last_token_pred, [1])
             last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
