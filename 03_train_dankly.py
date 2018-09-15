@@ -35,7 +35,7 @@ hidden_size = embed_size
 batch_size = 1024
 num_workers = 2
 num_layers = 3
-num_epochs = 100
+num_epochs = 80
 learning_rate = 0.01
 crop_size = 224
 save_step = 1
@@ -130,9 +130,9 @@ def collate_fn(data):
     targets = torch.zeros(len(captions), max(lengths)).long()
     #should I merge the matrix from 2D to 3D??? if so why and how come
     for i, cap in enumerate(captions):
-        end = lengths[i]
-        first_index = targets.size(1) - len(cap)
-        targets[i, first_index:] = cap
+        # end = lengths[i]
+        # first_index = targets.size(1) - len(cap)
+        targets[i, :len(cap)] = cap
         # targets[i, :end] = cap[:end]
 
     return images, targets, lengths
@@ -145,6 +145,9 @@ if __name__ == '__main__':
     with open(vocab_path, 'rb') as f:
         vocab = pickle.load(f)
 
+    print(vocab)
+    # raise Exception()
+
     #
     # with open(ids_file,'rb') as f:
     #     ids = pickle.load(f)
@@ -154,12 +157,20 @@ if __name__ == '__main__':
     # my images: a tensor of shape (batch_size, 3, crop_size, crop_size)
     # my captions: a tensor of shape (batch_size, padded_length)
     # my lengths: a list indicating valid length for each caption. length is (batch_size).
+    # transform = transforms.Compose([
+    #     transforms.RandomCrop(crop_size),
+    #     transforms.RandomHorizontalFlip(),
+    #     transforms.ToTensor(),
+    #     transforms.Normalize((0.485, 0.456, 0.406),
+    #                          (0.229, 0.224, 0.225))
+    # ])
+
     transform = transforms.Compose([
-        transforms.RandomCrop(crop_size),
-        transforms.RandomHorizontalFlip(),
+        transforms.Resize(crop_size),
         transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406),
-                             (0.229, 0.224, 0.225))])
+        # transforms.Normalize((0.485, 0.456, 0.406),
+        #                      (0.229, 0.224, 0.225))
+    ])
 
     memedata = memeDataset(root=image_path,
                            json=json,
@@ -197,7 +208,7 @@ if __name__ == '__main__':
             encoder.eval()
             decoder.train()
             optimizer.zero_grad()
-            decoder.recur_state = decoder.init_recur_state(captions.size(0))
+            # decoder.recur_state = decoder.init_recur_state(captions.size(0))
 
             minibatch_start = timeit.timeit()
             X_captions = captions[:, :-1]
@@ -222,15 +233,17 @@ if __name__ == '__main__':
             # Forward, backward and optimize
             features = encoder(images)
 
-            print('features 1', features[0])
-            print('features 2', features[1])
+            # print('features 1', features[0])
+            # print('features 2', features[1])
             outputs = decoder(features, X_captions, lengths)
-            print('outputs', outputs.shape)
-            #targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
-            y_captions = y_captions.contiguous()
-            targets = y_captions.view(-1)
+            # print('outputs', outputs.shape)
+            # print('y_captions', y_captions)
+            targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
+            # y_captions = y_captions.contiguous()
+            # targets = y_captions.view(-1)
             # targets = pack_padded_sequence(y_captions, lengths, batch_first=True)[0]
             print('targets', targets.shape)
+
             #print('reshaped y captions ', y_captions.view(-1).size())
             loss = criterion(outputs, targets)
             acc = accuracy_score(targets, outputs.argmax(-1))
@@ -266,7 +279,7 @@ if __name__ == '__main__':
     with torch.no_grad():
         encoder.eval()
         decoder.eval()
-        decoder.recur_state = decoder.init_recur_state(1)
+        # decoder.recur_state = decoder.init_recur_state(1)
         feature = features[1:]
         X = captions[1, :-1].detach().cpu().numpy()
         print('old feature', feature)
@@ -290,7 +303,7 @@ if __name__ == '__main__':
         print('y', y)
         print('y words', [vocab.index_to_word[id.item()] for id in y])
 
-    torch.save((encoder, decoder), os.path.join(model_path, 'full_model.pt'))
-    torch.save(decoder.state_dict(), os.path.join(
-        model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
-    torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+    torch.save((encoder, decoder), os.path.join(model_path, 'nick_model_3.pt'))
+    # torch.save(decoder.state_dict(), os.path.join(
+    #     model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
+    # torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))

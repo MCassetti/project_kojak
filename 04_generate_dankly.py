@@ -16,6 +16,7 @@ hidden_size = 300
 batch_size = 64
 num_layers = 3
 max_seq_length = 10
+crop_size = 224
 
 # def load_state_dicts(state, model):
 #     state_dict = state['state_dict']
@@ -48,7 +49,8 @@ if __name__ == '__main__':
     model_path = current_dir + '/models/'
     encoder_path = model_path +  '/encoder-100-1.ckpt'
     decoder_path = model_path +  '/decoder-100-1.ckpt'
-    full_model = model_path + '/full_model.pt'
+    # full_model = model_path + '/full_model.pt'
+    full_model = model_path + '/nick_model_3.pt'
     image_path = current_dir + '/image_resized/' + 'grumpy-cat.jpg'
     #image_path = current_dir + '/image_resized/' + 'forever-alone.jpg'
     meta_tokens = ['<pad>','<start>','<pause>','<unk>']
@@ -56,9 +58,11 @@ if __name__ == '__main__':
         vocab = pickle.load(f)
 
     transform = transforms.Compose([
+        transforms.Resize(crop_size),
         transforms.ToTensor(),
-        transforms.Normalize((0.485, 0.456, 0.406),
-                             (0.229, 0.224, 0.225))])
+        # transforms.Normalize((0.485, 0.456, 0.406),
+        #                      (0.229, 0.224, 0.225))
+    ])
 
     # build the models
     # encoder = EncoderCNN(embed_size)
@@ -93,14 +97,20 @@ if __name__ == '__main__':
         feature = encoder(image_tensor)
         print('feature', feature)
     # feature = torch.zeros_like(feature)
-    seed = [vocab.word_to_index['super']]
+
+    seed = ['<start>']
+    seed = [vocab.word_to_index[word] for word in seed]
+    # seed = [vocab.word_to_index['super']]
     print('i to w', vocab.index_to_word)
     print('w to i', vocab.word_to_index)
 
     with torch.no_grad():
         encoder.eval()
         decoder.eval()
-        # X = ['<start>', 'super', 'rad', 'aadvark']
+
+
+        # X = ['<pad>', '<start>', 'super', 'rad', '<pause>', 'aadvark']
+        # X = ['<pad>', '<start>']
         # X = [vocab.word_to_index[word] for word in X]
         # X = torch.LongTensor([X]).to(device)
         # y = decoder(feature, X, [X.size(1)])
@@ -110,18 +120,23 @@ if __name__ == '__main__':
         # print('y', y)
         # print('y words', [vocab.index_to_word[id.item()] for id in y])
         # raise Exception()
-        decoder.recur_state = decoder.init_recur_state(1)
+
+
+        # decoder.recur_state = decoder.init_recur_state(1)
         sampled_ids = decoder.greedy(feature, seed)
+        print('sampled ids', sampled_ids)
+        print('sampled words', [vocab.index_to_word[id] for id in sampled_ids])
         #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
         sampled_caption = []
 
         for word_id in sampled_ids:
             word = vocab.index_to_word[word_id]
+            sampled_caption.append(word)
             if word == '<end>':
                 break
-            if word in meta_tokens:
-                continue
-            sampled_caption.append(word)
+            # if word in meta_tokens:
+            #     continue
+            #
         sentence = ' '.join(sampled_caption)
 
         # Print out the image and the generated caption

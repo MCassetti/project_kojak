@@ -36,28 +36,28 @@ class DecoderRNN(nn.Module):
         self.embed = nn.Embedding(vocab_size, embed_size)
         self.embed.weight = nn.Parameter(embedding_matrix)
         self.embed.requires_grad = True
-        self.lstm = nn.LSTM(embed_size * 2, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(embed_size, hidden_size, num_layers, batch_first=True)
         self.linear = nn.Linear(hidden_size, vocab_size)
         self.max_seq_length = max_seq_length
         self.recurrent_layers = num_layers
         self.drop = nn.Dropout(p=0.0, inplace=True)
         self.recur_size = hidden_size
 
-    def init_recur_state(self, batch_size):
-        """
-        Return an empty hidden state for the recurrent layer.
-
-        Args:
-             batch_size (int): The number of training examples in
-                each mini-batch.
-
-        Returns:
-            (tuple): A tuple of torch tensors each with the shape
-                `(num_recur_layers, batch_size, recur_size)`.
-
-        """
-        return (torch.zeros(self.recurrent_layers, batch_size, self.recur_size).to(device),
-                torch.zeros(self.recurrent_layers, batch_size, self.recur_size).to(device))
+    # def init_recur_state(self, batch_size):
+    #     """
+    #     Return an empty hidden state for the recurrent layer.
+    #
+    #     Args:
+    #          batch_size (int): The number of training examples in
+    #             each mini-batch.
+    #
+    #     Returns:
+    #         (tuple): A tuple of torch tensors each with the shape
+    #             `(num_recur_layers, batch_size, recur_size)`.
+    #
+    #     """
+    #     return (torch.zeros(self.recurrent_layers, batch_size, self.recur_size).to(device),
+    #             torch.zeros(self.recurrent_layers, batch_size, self.recur_size).to(device))
 
     def forward(self, features, captions, lengths):
         """Decode image feature vectors and generates captions."""
@@ -69,35 +69,35 @@ class DecoderRNN(nn.Module):
         # print('before concat', embeddings.shape)
         # embeddings = torch.cat((features.unsqueeze(1), embeddings), 1)
         # print('after concat', embeddings.shape)
-        # packed = pack_padded_sequence(embeddings, lengths, batch_first=True)
+        embeddings = pack_padded_sequence(embeddings, lengths, batch_first=True)
         # print('packed', packed[0].shape)
         #print('feature size', features.shape)
 
-        # if features is not None:
-        #     reshaped_features = features.unsqueeze(0)
-        #     reshaped_features = reshaped_features.expand(3, reshaped_features.size(1), reshaped_features.size(2))
-        #     reshaped_features = reshaped_features.contiguous()
-        #     self.recur_state = (reshaped_features, reshaped_features)
+        if features is not None:
+            reshaped_features = features.unsqueeze(0)
+            reshaped_features = reshaped_features.expand(3, reshaped_features.size(1), reshaped_features.size(2))
+            reshaped_features = reshaped_features.contiguous()
+            self.recur_state = (reshaped_features, reshaped_features)
 
 
-        reshaped_features = features.unsqueeze(1)
-        reshaped_features = reshaped_features.expand(reshaped_features.size(0), captions.size(1), reshaped_features.size(2))
-        reshaped_features = reshaped_features.contiguous()
-        print('reshaped_features', reshaped_features.shape)
-        print('embeddings 1', embeddings.shape)
-        embeddings = torch.cat((embeddings, reshaped_features), 2)
-        print('embeddings 2', embeddings.shape)
+        # reshaped_features = features.unsqueeze(1)
+        # reshaped_features = reshaped_features.expand(reshaped_features.size(0), captions.size(1), reshaped_features.size(2))
+        # reshaped_features = reshaped_features.contiguous()
+        # print('reshaped_features', reshaped_features.shape)
+        # print('embeddings 1', embeddings.shape)
+        # embeddings = torch.cat((embeddings, reshaped_features), 2)
+        # print('embeddings 2', embeddings.shape)
 
 
 
         hiddens, self.recur_state = self.lstm(embeddings, self.recur_state)
-        hiddens = hiddens.contiguous()
+        # hiddens = hiddens.contiguous()
         # Flatten out the result so it has shape
         # `(batch_length * seq_length, recur_size)`.
-        print('hiddens 1', hiddens.shape)
-        hiddens = hiddens.view(-1, 300)
-        print('hiddens 2', hiddens.shape)
-        outputs = self.linear(hiddens)
+        # print('hiddens 1', hiddens.shape)
+        # hiddens = hiddens.view(-1, 300)
+        # print('hiddens 2', hiddens.shape)
+        outputs = self.linear(hiddens[0])
         #outputs, _ = pack_padded_sequence(outputs, lengths, batch_first=True)
         # outputs = self.drop(outputs)
         return outputs
@@ -106,15 +106,20 @@ class DecoderRNN(nn.Module):
         """Generate captions for given image features using greedy search."""
 
         sampled_ids = seed[:]
-        seed = torch.LongTensor([[2] + seed]).to(device)
+        seed = torch.LongTensor([seed]).to(device)
 
         last_token_pred = self(features, seed, [seed.size(1)])
+        print('raw y', last_token_pred)
+
         #print('y_pred', last_token_pred.shape)
 
         last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
+        sampled_ids.append(last_token_pred.item())
+        print('last pred', last_token_pred)
+
         print('initial word', last_token_pred.shape)
         for _ in range(self.max_seq_length):
-            last_token_pred = self(features, last_token_pred, [1])
+            last_token_pred = self(None, last_token_pred, [1])
             last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
             print('outputed word', last_token_pred.shape)
             sampled_ids.append(last_token_pred.item())
