@@ -8,6 +8,7 @@ import timeit
 import nltk
 import numpy as np
 from PIL import Image
+from textblob import TextBlob
 from memelookup import MEME
 from torch.nn.utils.rnn import pack_padded_sequence, PackedSequence
 from torch.utils.data import Dataset, DataLoader
@@ -35,7 +36,7 @@ hidden_size = embed_size
 batch_size = 1024
 num_workers = 2
 num_layers = 3
-num_epochs = 80
+num_epochs = 10
 learning_rate = 0.01
 crop_size = 224
 save_step = 1
@@ -204,13 +205,13 @@ if __name__ == '__main__':
     params = list(decoder.parameters()) + list(encoder.linear.parameters()) + list(encoder.bn.parameters())
 
     for epoch in range(num_epochs):
-        if epoch % 10 == 0:
+        if epoch % 5 == 0:
             learning_rate = learning_rate/5
-        optimizer = torch.optim.Adam(params) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
+        optimizer = torch.optim.Adam(params,lr=learning_rate) # prefered for computer vision problems, Adam realizes the benefits of both AdaGrad and RMSProp.
         epoch_start = timeit.timeit()
         for i, (images, captions, lengths) in enumerate(data_loader):
-            print('images shape', images.shape)
-            print('image', images[1])
+            #print('images shape', images.shape)
+            #print('image', images[1])
 
             encoder.eval()
             decoder.train()
@@ -222,10 +223,10 @@ if __name__ == '__main__':
             X_captions = X_captions.to(device)
             y_captions = captions[:, 1:]
             y_captions = y_captions.to(device)
-            print('X', [vocab.index_to_word[X_captions[0, i].item()] for i in range(X_captions.size(1))])
-            print('y', [vocab.index_to_word[y_captions[0, i].item()] for i in range(y_captions.size(1))])
-            print('X', [vocab.index_to_word[X_captions[1, i].item()] for i in range(X_captions.size(1))])
-            print('y', [vocab.index_to_word[y_captions[1, i].item()] for i in range(y_captions.size(1))])
+            #print('X', [vocab.index_to_word[X_captions[0, i].item()] for i in range(X_captions.size(1))])
+            #print('y', [vocab.index_to_word[y_captions[0, i].item()] for i in range(y_captions.size(1))])
+            #print('X', [vocab.index_to_word[X_captions[1, i].item()] for i in range(X_captions.size(1))])
+            #print('y', [vocab.index_to_word[y_captions[1, i].item()] for i in range(y_captions.size(1))])
             #print('X_captions shape', X_captions.shape)
             #print('y_captions shape', y_captions.shape)
             # Set mini-batch dataset
@@ -262,8 +263,8 @@ if __name__ == '__main__':
 
 
 
-            # decoder.zero_grad()
-            # encoder.zero_grad()
+            decoder.zero_grad()
+            encoder.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -283,34 +284,35 @@ if __name__ == '__main__':
         if i % log_step == 0:
             print('Approx time per epoch {}'.format((epoch_start - epoch_end)))
     print('fml')
-    with torch.no_grad():
-        encoder.eval()
-        decoder.eval()
-        # decoder.recur_state = decoder.init_recur_state(1)
-        feature = features[1:]
-        X = captions[1, :-1].detach().cpu().numpy()
-        print('old feature', feature)
-        images = images.to(device)
-        image = images[1:]
-        print('image', image)
-        # features = encoder(images)
-        # feature = features[1:]
-        # print('new feature', feature)
-        feature = encoder(image)
-        # feature = features[1:]
-        print('new new feature', feature)
+    torch.save((encoder, decoder), os.path.join(model_path, 'full_model.pt'))
+    # with torch.no_grad():
+    #     encoder.eval()
+    #     decoder.eval()
+    #     # decoder.recur_state = decoder.init_recur_state(1)
+    #     feature = features[1:]
+    #     X = captions[1, :-1].detach().cpu().numpy()
+    #     print('old feature', feature)
+    #     images = images.to(device)
+    #     image = images[1:]
+    #     print('image', image)
+    #     # features = encoder(images)
+    #     # feature = features[1:]
+    #     # print('new feature', feature)
+    #     feature = encoder(image)
+    #     # feature = features[1:]
+    #     print('new new feature', feature)
+    #
+    #     # X = ['<start>', 'super', 'rad', 'aadvark']
+    #     print('X words',[vocab.index_to_word[word] for word in X])
+    #     X = torch.LongTensor([X]).to(device)
+    #     y = decoder(feature, X, [X.size(1)])
+    #     print('X', X)
+    #     print('raw_y', y)
+    #     y = y.argmax(-1)
+    #     print('y', y)
+    #     print('y words', [vocab.index_to_word[id.item()] for id in y])
+    #
 
-        # X = ['<start>', 'super', 'rad', 'aadvark']
-        print('X words',[vocab.index_to_word[word] for word in X])
-        X = torch.LongTensor([X]).to(device)
-        y = decoder(feature, X, [X.size(1)])
-        print('X', X)
-        print('raw_y', y)
-        y = y.argmax(-1)
-        print('y', y)
-        print('y words', [vocab.index_to_word[id.item()] for id in y])
-
-    torch.save((encoder, decoder), os.path.join(model_path, 'nick_model_3.pt'))
     # torch.save(decoder.state_dict(), os.path.join(
     #     model_path, 'decoder-{}-{}.ckpt'.format(epoch+1, i+1)))
     # torch.save(encoder.state_dict(), os.path.join(model_path, 'encoder-{}-{}.ckpt'.format(epoch+1, i+1)))

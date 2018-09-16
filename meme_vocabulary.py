@@ -34,7 +34,7 @@ class Vocabulary(object):
         ids = meme.caps.keys()
         #stop = list(string.punctuation) #+ list(string.digits)
         counter = Counter()
-        max_meme_vocab = 2000
+        max_meme_vocab = 6000
         for i, id in enumerate(ids):
             caption = str(meme.caps[id]['caption'])
             caption = caption.replace("'","")

@@ -10,7 +10,10 @@ pause_token = ' <pause> ' #hoping to strip out later anyways
 image_id = 0
 info_dict = {"description":"meme data set","keys":"image_id"}
 id = 0
-meme_list = ['meme_captions_philosoraptor.txt']
+#meme_list = ['meme_captions_yo-dawg.txt']
+
+meme_list = ['meme_captions_yo-dawg.txt', 'meme_captions_captain-picard.txt','meme_captions_grumpy-cat.txt','meme_captions_success-kid_first.txt','meme_captions_what-if-i-told-you-matrix-morpheus.txt',
+'meme_captions_yo-dawg.txt','meme_captions_chemistry-cat.txt','meme_captions_futurama-fry.txt']
 full_caption_dict = {}
 caption_list = []
 image_list = []

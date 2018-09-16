@@ -109,11 +109,12 @@ class DecoderRNN(nn.Module):
         seed = torch.LongTensor([seed]).to(device)
 
         last_token_pred = self(features, seed, [seed.size(1)])
-        print('raw y', last_token_pred)
+        #print('raw y', last_token_pred)
 
         #print('y_pred', last_token_pred.shape)
 
         last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
+        print('outputed word', last_token_pred.size())
         sampled_ids.append(last_token_pred.item())
         #print('last pred', last_token_pred)
 
@@ -123,8 +124,40 @@ class DecoderRNN(nn.Module):
             last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
             print('outputed word', last_token_pred.shape)
             sampled_ids.append(last_token_pred.item())
+        return sampled_ids
+
+    def softmax_probs(self, features, seed, states=None):
+        sampled_ids = seed[:]
+        seed = torch.LongTensor([seed]).to(device)
+
+        last_token_pred = self(features, seed, [seed.size(1)])
+        outputs = last_token_pred[-1:, :].unsqueeze(0)
+        tmpprobs = F.softmax(outputs.view(-1))
+        probs = tmpprobs/sum(tmpprobs)
+        probs = probs.detach().cpu().numpy()
+        last_token_pred = np.random.choice(len(outputs.view(-1)) ,p=probs)
+        sampled_ids.append(last_token_pred)
+        last_token_pred = torch.LongTensor([last_token_pred]).to(device)
+        last_token_pred = last_token_pred.unsqueeze(0)
+        print('outputed word', last_token_pred.shape)
 
 
+        for _ in range(self.max_seq_length):
+            last_token_pred = self(None, last_token_pred, [1])
+            outputs = last_token_pred[-1:, :].unsqueeze(0)
+            tmpprobs = F.softmax(outputs.view(-1))
+            probs = tmpprobs/sum(tmpprobs)
+            probs = probs.detach().cpu().numpy()
+
+            last_token_pred = np.random.choice(len(outputs.view(-1)) ,p=probs)
+            sampled_ids.append(last_token_pred)
+            last_token_pred = torch.LongTensor([last_token_pred]).to(device)
+            last_token_pred = last_token_pred.unsqueeze(0)
+            print('outputed word', last_token_pred.shape)
+
+
+
+        return sampled_ids
         # sampled_ids = []
         # eshaped_features = features.unsqueeze(0)
         # reshaped_features = reshaped_features.expand(3, reshaped_features.size(1), reshaped_features.size(2))
@@ -156,7 +189,7 @@ class DecoderRNN(nn.Module):
         #     inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
         #     inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
         # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
-        return sampled_ids
+
 
     # def beam_search(self, features, states=None):
     #     """ Generate captions for a give features using beam search."""
