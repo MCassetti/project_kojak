@@ -1,6 +1,7 @@
 /meme_downloads
 /image_downloads
 __pycache__/
+outputs/
 /image_resized/
 .DS_Store
 *.swp

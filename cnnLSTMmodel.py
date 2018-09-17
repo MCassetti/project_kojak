@@ -4,6 +4,9 @@ import torch.nn as nn
 import torchvision.models as models
 from torch.nn.utils.rnn import pack_padded_sequence
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class EncoderCNN(nn.Module):
 
@@ -114,7 +117,7 @@ class DecoderRNN(nn.Module):
         #print('y_pred', last_token_pred.shape)
 
         last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
-        print('outputed word', last_token_pred.size())
+        #print('outputed word', last_token_pred.size())
         sampled_ids.append(last_token_pred.item())
         #print('last pred', last_token_pred)
 
@@ -122,7 +125,7 @@ class DecoderRNN(nn.Module):
         for _ in range(self.max_seq_length):
             last_token_pred = self(None, last_token_pred, [1])
             last_token_pred = last_token_pred[-1:, :].argmax(-1).unsqueeze(0)
-            print('outputed word', last_token_pred.shape)
+            #print('outputed word', last_token_pred.shape)
             sampled_ids.append(last_token_pred.item())
         return sampled_ids
 
@@ -139,7 +142,7 @@ class DecoderRNN(nn.Module):
         sampled_ids.append(last_token_pred)
         last_token_pred = torch.LongTensor([last_token_pred]).to(device)
         last_token_pred = last_token_pred.unsqueeze(0)
-        print('outputed word', last_token_pred.shape)
+        #print('outputed word', last_token_pred.shape)
 
 
         for _ in range(self.max_seq_length):
@@ -148,72 +151,49 @@ class DecoderRNN(nn.Module):
             tmpprobs = F.softmax(outputs.view(-1))
             probs = tmpprobs/sum(tmpprobs)
             probs = probs.detach().cpu().numpy()
-
             last_token_pred = np.random.choice(len(outputs.view(-1)) ,p=probs)
             sampled_ids.append(last_token_pred)
             last_token_pred = torch.LongTensor([last_token_pred]).to(device)
             last_token_pred = last_token_pred.unsqueeze(0)
-            print('outputed word', last_token_pred.shape)
-
 
 
         return sampled_ids
-        # sampled_ids = []
-        # eshaped_features = features.unsqueeze(0)
-        # reshaped_features = reshaped_features.expand(3, reshaped_features.size(1), reshaped_features.size(2))
-        # reshaped_features = reshaped_features.contiguous()
-        # _, states = self.lstm(start, reshaped_features)
-        # start = torch.LongTensor([seed])
-        # for i in range(self.max_seq_length):
-        #     hiddens, states = self.lstm(start, reshaped_features)          # hiddens: (batch_size, 1, hidden_size)
-        #     outputs = self.linear(hiddens.squeeze(1))            # outputs:  (batch_size, vocab_size)
-        #     tmpprobs = F.softmax(outputs.view(-1))
-        #     probs = tmpprobs/sum(tmpprobs)
-        #     probs = probs.detach().cpu().numpy()
-        #     outputs_flat = outputs.view(1,-1).detach().cpu().numpy()
-        #     index = np.random.choice(len(outputs.view(-1)) ,p=probs)
-        #
-        #     #if i == 0:
-        #     #    index = 179
-        #     #if i == 1:
-        #     #    index = 37
-        #     #if i == 2:
-        #     #    index = 91
-        #     #if i == 3:
-        #     #    index = 720
-        #     #print(index, type(index), list(outputs_flat)[index], type(outputs_flat))
-        #     predicted_max = outputs.max(dim=1)[1]                        # predicted: (batch_size)
-        #     predicted = torch.tensor([index], dtype=torch.long).to(device)
-        #     #print(predicted.size(), predicted, predicted_max)
-        #     sampled_ids.append(predicted)
-        #     inputs = self.embed(predicted)                       # inputs: (batch_size, embed_size)
-        #     inputs = inputs.unsqueeze(1)                         # inputs: (batch_size, 1, embed_size)
-        # sampled_ids = torch.stack(sampled_ids, 1)                # sampled_ids: (batch_size, max_seq_length)
 
 
-    # def beam_search(self, features, states=None):
-    #     """ Generate captions for a give features using beam search."""
-    #     sampled_ids = []
-    #     inputs = features.unsqueeze(1)
-    #     data = []
-    #     top_n = 100
-    #     for i in range(self.max_seq_length):
-    #         hiddens,sates = self.lstm(inputs,states)
-    #         outputs = self.linear(hiddens.squeeze(1))
-    #         tmpprobs = F.softmax(outputs.view(-1))
-    #         probs = tmpprobs/sum(tmpprobs)
-    #         probs = probs.detach().cpu().numpy()
-    #         data.append(probs)
-    #     sequences = [[list(), 1.0]]
-    #     for row in data:
-    #         all_candidates = []
-    #         # expand each current sequence
-    #         for i in range(len(sequences)):
-    #             seq, score = sequences[i]
-    #             for j in range(len(row)):
-    #                 candidate = [seq + [j], score * -np.log(row[j])]
-    #                 all_candidates.append(candidate)
-    #             # order all candidates by score
-    #             ordered = sorted(all_candidates, key=lambda tup:tup[1])
-    #             sequences = ordered[:top_n]
-    #     return sequences
+    def beam_search(self, features, seed, top_n, states=None):
+
+        data = []
+        sampled_ids = seed[:]
+        seed = torch.LongTensor([seed]).to(device)
+        last_token_pred = self(features, seed, [seed.size(1)])
+        outputs = last_token_pred[-1:, :].unsqueeze(0)
+        tmpprobs = F.softmax(outputs.view(-1))
+        probs = tmpprobs/sum(tmpprobs)
+        probs = tmpprobs
+        probs = probs.detach().cpu().numpy()
+        data.append(probs)
+        for i in range(self.max_seq_length):
+            last_token_pred = self(features, seed, [seed.size(1)])
+            outputs = last_token_pred[-1:, :].unsqueeze(0)
+            tmpprobs = F.softmax(outputs.view(-1))
+            probs = tmpprobs
+            probs = tmpprobs/sum(tmpprobs)
+            probs = probs.detach().cpu().numpy()
+            data.append(probs)
+
+        #print(probs,probs.shape)
+        sequences = [[list(), 1.0]]
+        for row in data:
+            all_candidates = []
+            # expand each current sequence
+            for i in range(len(sequences)):
+                seq, score = sequences[i]
+                for j in range(len(row)):
+                    candidate = [seq + [j], score * -np.log(row[j])]
+                    all_candidates.append(candidate)
+                # order all candidates by score
+                all_candidates.sort(key=lambda tup:tup[1])
+
+        sampled_ids = [id[0] for i,(id,prob) in enumerate(all_candidates[:top_n])]
+
+        return sampled_ids
