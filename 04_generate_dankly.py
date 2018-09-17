@@ -15,7 +15,7 @@ embed_size = 300
 hidden_size = 300
 batch_size = 64
 num_layers = 3
-max_seq_length = 100
+max_seq_length = 20
 crop_size = 224
 
 # def load_state_dicts(state, model):
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     #decoder_path = model_path +  '/decoder-100-1.ckpt'
     full_model = model_path + '/full_model.pt'
     #full_model = model_path + '/nick_model_3.pt'
-    image_path = current_dir + '/image_resized/' + 'yo-dawg.jpg'
+    image_path = current_dir + '/image_resized/' + 'captain-picard.jpg'
     #image_path = current_dir + '/image_resized/' + 'forever-alone.jpg'
     meta_tokens = ['<pad>','<start>','<pause>','<unk>']
     with open(vocab_path, 'rb') as f:
@@ -98,7 +98,7 @@ if __name__ == '__main__':
         print('feature', feature)
     # feature = torch.zeros_like(feature)
 
-    seed = ['<start>', 'yo','dawg']
+    seed = ['<start>']
     seed = [vocab.word_to_index[word] for word in seed]
     # seed = [vocab.word_to_index['super']]
     print('i to w', vocab.index_to_word)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
         print('sampled ids', sampled_ids)
         print('sampled words', [vocab.index_to_word[id] for id in sampled_ids])
         #sampled_ids = sampled_ids[0].detach().cpu().numpy()          # (1, max_seq_length) -> (max_seq_length)
-        for _ in range(100):
+        for _ in range(200):
             sampled_caption = []
             sampled_ids = decoder.softmax_probs(feature, seed)
             for word_id in sampled_ids:
