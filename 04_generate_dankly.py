@@ -18,15 +18,7 @@ num_layers = 3
 max_seq_length = 100
 crop_size = 224
 
-# def load_state_dicts(state, model):
-#     state_dict = state['state_dict']
-#     new_state_dict = OrderedDict()
-#     for key, value in state_dict.items():
-#         #name = key
-#         name = key[7:] # remove `module.`
-#         new_state_dict[key] = value
-#     # load params
-#     return model.load_state_dict(state['state_dict'])
+
 
 def load_image(image_path,transform):
     image = Image.open(image_path).convert('RGB')
@@ -35,12 +27,8 @@ def load_image(image_path,transform):
     # image.show()
     if transform is not None:
         image = transform(image)
-        # print("what is the size of this shit 1:", image)
     return image.to(device)
-        # print("what is the size of this shit:",image.size())
-        # image = torch.stack(image, 0)
-        #image = transform(image).unsqueeze(0)
-    # return image
+
 
 if __name__ == '__main__':
 
@@ -139,6 +127,3 @@ if __name__ == '__main__':
                         break
 
                 sentence = ' '.join(sampled_caption)
-
-
-                #print(f"image: {image}, beam search:{sentence}",flush=True)
