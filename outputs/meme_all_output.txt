@@ -1,0 +1,160 @@
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like birthday <pause> so i killed your focus <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg <pause> i herd yo like computer so we put a heads yo yo dawg so you can hate u use yo
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like <pause> so i got you a dragon name about phone <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , we heard you like cards <pause> so i put a starbucks in your kid so you can read your dick
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like harry potter <pause> but i shit . <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like 3d messages cakes <pause> so i were lonely , oh thinks she laugh yet ? <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like <pause> so we put on fish so you can while you . <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like roleplay <pause> so we chew with you % opening computer after you fly from bro <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like update videos <pause> so we raped and a computer <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like justin bieber .. <pause> so i we in the birthday <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg <pause> how who do you suck <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like <pause> so we put in your so you can while you # ! <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like dead <pause> i gave them you to pick up your house sick <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like homework <pause> so i put some words in your lecture so you can help yourself while
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like ... <pause> <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg ! <pause> <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg we heard you like single month <pause> so invited you to <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg i heard you like ben <pause> so i took bad ! <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like pussy <pause> so i put some pork on your cake so u can look in your
+image: yo-dawg.jpg, softmax: <start> yo dawg , i heard you like to rock <pause> so i put in your chinese so you can watch a database on
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> do you not call when a dildo to celebrate <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> were really hungry <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> would i watch opposite all of the guy <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> call friends only free ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> would you have a anyway married up ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> wont keep memes ! <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> does not access the last ! ! ! <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> te <end>
+image: captain-picard.jpg, softmax: <start> why the fuck ... <pause> are there so many of the fireworks <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> but call it so having an ? <end>
+image: captain-picard.jpg, softmax: <start> why the f*ck ? ? <pause> you think youre going to do that again ! ! ! ! <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> cant you call he <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> can her win the have a cunt <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> do you do bullshit on 5 % ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> is there playing cunts ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> do you mean rich ? <end>
+image: captain-picard.jpg, softmax: <start> why the hell do <pause> choose to join the repost that female accounts today <end>
+image: captain-picard.jpg, softmax: <start> why the hell is everyone ... <pause> what didnt all the fuck up ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> doesnt you just have an beta at weeks ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> do you cut the f*** ? <end>
+image: grumpy-cat.jpg, softmax: <start> about <pause> your true <end>
+image: grumpy-cat.jpg, softmax: <start> vote me ? <pause> good <end>
+image: grumpy-cat.jpg, softmax: <start> hey please you funny <pause> i shut to my kill yeah not well ! <end>
+image: grumpy-cat.jpg, softmax: <start> got its love by texts <pause> the like some ! ! <end>
+image: grumpy-cat.jpg, softmax: <start> <pause> . <end>
+image: grumpy-cat.jpg, softmax: <start> no teacher is ending <pause> going day for them on your wall <end>
+image: grumpy-cat.jpg, softmax: <start> ’ nada <pause> de <end>
+image: grumpy-cat.jpg, softmax: <start> ? not good ! <pause> , hate all of the <end>
+image: grumpy-cat.jpg, softmax: <start> me to get the truth ? <pause> oh ! <end>
+image: grumpy-cat.jpg, softmax: <start> tired of once <pause> <end>
+image: grumpy-cat.jpg, softmax: <start> <pause> <end>
+image: grumpy-cat.jpg, softmax: <start> <pause> <end>
+image: grumpy-cat.jpg, softmax: <start> about team add fish <pause> are him ! <end>
+image: grumpy-cat.jpg, softmax: <start> look like today <pause> ... am a ... ! ! ! <end>
+image: grumpy-cat.jpg, softmax: <start> near and are beautiful with people <pause> ... must be my right <end>
+image: grumpy-cat.jpg, softmax: <start> i dare you <pause> i am having left and i have money <end>
+image: grumpy-cat.jpg, softmax: <start> <pause> <end>
+image: grumpy-cat.jpg, softmax: <start> , cause you take me <pause> hate how fucking couldnt even understand . <end>
+image: grumpy-cat.jpg, softmax: <start> gives a office in # <pause> stay over <end>
+image: grumpy-cat.jpg, softmax: <start> kid with me <pause> treat it event <end>
+image: success-kid_first.jpg, softmax: <start> im finally sad in my head to her friends ass for me ... <pause> no one does im a free chance
+image: success-kid_first.jpg, softmax: <start> didnt wait for with new girl is caught <pause> may take you to answer someone wrong <end>
+image: success-kid_first.jpg, softmax: <start> lane made sexy video zelda . <pause> some bar on top of . <end>
+image: success-kid_first.jpg, softmax: <start> nba line <pause> doesnt read <end>
+image: success-kid_first.jpg, softmax: <start> double exam <pause> another meme <end>
+image: success-kid_first.jpg, softmax: <start> program <pause> noble game there <end>
+image: success-kid_first.jpg, softmax: <start> <pause> next hot <end>
+image: success-kid_first.jpg, softmax: <start> copy 5 on lab <pause> called 40 bands <end>
+image: success-kid_first.jpg, softmax: <start> with a legendary in bed <pause> didnt get banned <end>
+image: success-kid_first.jpg, softmax: <start> <pause> didnt upgrade <end>
+image: success-kid_first.jpg, softmax: <start> finished awkward ring on morning <pause> him the fist <end>
+image: success-kid_first.jpg, softmax: <start> started sexist week <pause> no hangover <end>
+image: success-kid_first.jpg, softmax: <start> katy want in a problem at morning <pause> studying <end>
+image: success-kid_first.jpg, softmax: <start> use weight secret on the other season <pause> she needs for lunch <end>
+image: success-kid_first.jpg, softmax: <start> teacher called out <pause> girl used down <end>
+image: success-kid_first.jpg, softmax: <start> 2013 <pause> for forever <end>
+image: success-kid_first.jpg, softmax: <start> my iphone <pause> theyre free at checks from lines <end>
+image: success-kid_first.jpg, softmax: <start> <pause> <end>
+image: success-kid_first.jpg, softmax: <start> breaks boobs <pause> didnt ask by me <end>
+image: success-kid_first.jpg, softmax: <start> hot guy <pause> doesnt know sad <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> this is a safe mood back <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> i was just a man things otherwise <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> you dont do a bank friend need my life <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> black one is going to eat mo ? <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that congress meow up each time <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> if you pay bags of iron pill <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> is free and circle songs ? <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> the end of the world not barium <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that damn and bitch need to done instead of work <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you ... <pause> your friends know so actually wants nothing that hard at itself getting it than the keyboard dance .
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> just win sex k <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> i had your own interest <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that i would make this red wars matrix again . <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that there is a kiss of the captain <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that you dont automatically until check your facebook <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> that youre her won you <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> you dont have the drink with ppl close the going on the music <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> bend out of its asshole <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you that <pause> theres a pills , but i meant it for everyone better <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told them <pause> that you are terrible <end>
+image: chemistry-cat.jpg, softmax: <start> in <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> out of breaking in <pause> physics cake <end>
+image: chemistry-cat.jpg, softmax: <start> is sending calling the hypothesis . <pause> can drink 7 <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> ! <end>
+image: chemistry-cat.jpg, softmax: <start> disagree down <pause> not good ! ! ! <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> on hand do <pause> another year . <end>
+image: chemistry-cat.jpg, softmax: <start> you ... <pause> ! class ! <end>
+image: chemistry-cat.jpg, softmax: <start> is your <pause> is a serial <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> must you be proven 1 problems <pause> i need a problems <end>
+image: chemistry-cat.jpg, softmax: <start> do youre no ! ! ! <pause> because youre attractive <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> ! ! ! <end>
+image: chemistry-cat.jpg, softmax: <start> who are a formula too . <pause> is red one of gas . <end>
+image: chemistry-cat.jpg, softmax: <start> famous potassium in the same that <pause> excited it <end>
+image: chemistry-cat.jpg, softmax: <start> fuck you <pause> balls ... <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> . <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> <pause> <end>
+image: futurama-fry.jpg, softmax: <start> not sure if shes saying <pause> or is just a meat <end>
+image: futurama-fry.jpg, softmax: <start> not sure if compliment <pause> or <end>
+image: futurama-fry.jpg, softmax: <start> not sure if ... <pause> or guys like all . <end>
+image: futurama-fry.jpg, softmax: <start> not sure if facebook is hard <pause> or all of other world <end>
+image: futurama-fry.jpg, softmax: <start> not sure if <pause> or if just sure its the last language <end>
+image: futurama-fry.jpg, softmax: <start> not sure if nobody thinks the trash , eat round <pause> or go other register <end>
+image: futurama-fry.jpg, softmax: <start> not sure if genuinely <pause> or surrounded by those positive whatsapp with <end>
+image: futurama-fry.jpg, softmax: <start> not sure if i should laugh <pause> or <end>
+image: futurama-fry.jpg, softmax: <start> not sure if no <pause> or just a big good meme ... <end>
+image: futurama-fry.jpg, softmax: <start> not sure if that are my mom <pause> or just a person at his life <end>
+image: futurama-fry.jpg, softmax: <start> not sure if oh yes is a voting for people to me <pause> my old argument is listening to delete <end>
+image: futurama-fry.jpg, softmax: <start> not sure if now is making a troll <pause> or a glass of <end>
+image: futurama-fry.jpg, softmax: <start> not sure if genius <pause> or <end>
+image: futurama-fry.jpg, softmax: <start> not sure if friends rings hates me <pause> or theyre just photoshop <end>
+image: futurama-fry.jpg, softmax: <start> not sure if <pause> or chuck testa <end>
+image: futurama-fry.jpg, softmax: <start> not sure if science is excited <pause> or <end>
+image: futurama-fry.jpg, softmax: <start> not sure if one is making a shirt into <pause> or interested outside <end>
+image: futurama-fry.jpg, softmax: <start> not sure if unlocking time without because much <pause> or wearing holiday store <end>
+image: futurama-fry.jpg, softmax: <start> not sure if <pause> or justin metal <end>
+image: futurama-fry.jpg, softmax: <start> not sure if <pause> small teenage <end>
+image: image_from_ios.jpg, softmax: <start> hey my company asked you say about <pause> hands themselves . <end>
+image: image_from_ios.jpg, softmax: <start> its the become been <pause> breaking twice i have to go <end>
+image: image_from_ios.jpg, softmax: <start> <pause> <end>
+image: image_from_ios.jpg, softmax: <start> <pause> <end>
+image: image_from_ios.jpg, softmax: <start> i just told you about facts ! <pause> havent your sexy guy on right theres a chance <end>
+image: image_from_ios.jpg, softmax: <start> i west the next <pause> to avoid a <end>
+image: image_from_ios.jpg, softmax: <start> <pause> <end>
+image: image_from_ios.jpg, softmax: <start> , , , <pause> <end>
+image: image_from_ios.jpg, softmax: <start> <pause> , <end>
+image: image_from_ios.jpg, softmax: <start> <pause> you to the hell are your mind is allowed into the fuck of my life <end>
+image: image_from_ios.jpg, softmax: <start> <pause> look is ! <end>
+image: image_from_ios.jpg, softmax: <start> is the gangster will not ask the cat <pause> car hire finding a dog with his <end>
+image: image_from_ios.jpg, softmax: <start> file cats , meow least u cant their ? <pause> says itll let a faggot and eventually burned up ... hot
+image: image_from_ios.jpg, softmax: <start> was the right party ! <pause> is ! ? <end>
+image: image_from_ios.jpg, softmax: <start> <pause> ? ! <end>
+image: image_from_ios.jpg, softmax: <start> ? <pause> ! <end>
+image: image_from_ios.jpg, softmax: <start> <pause> , <end>
+image: image_from_ios.jpg, softmax: <start> <pause> a guy <end>
+image: image_from_ios.jpg, softmax: <start> , na <pause> i te <end>
+image: image_from_ios.jpg, softmax: <start> <pause> ... <end>

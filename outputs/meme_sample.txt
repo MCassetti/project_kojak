@@ -1,0 +1,24 @@
+image: yo-dawg.jpg, greedy algo: <start> yo dawg , i heard you like <pause> so i put a in your so you can while you <end>
+image: yo-dawg.jpg, softmax: <start> yo dawg <pause> gon na take kill your clothes <end>
+image: yo-dawg.jpg, beam search:, i <pause> we heard ! ... . herd so
+image: captain-picard.jpg, greedy algo: <start> why the fuck <pause> do you have to be a ? <end>
+image: captain-picard.jpg, softmax: <start> why the fuck <pause> would you go to the solution ? <end>
+image: captain-picard.jpg, beam search:fuck hell heck <pause> f*ck f f**k f*** # fuk
+image: grumpy-cat.jpg, greedy algo: <start> <pause> <end>
+image: grumpy-cat.jpg, softmax: <start> wheels in your internet use <pause> meeting so im free campus dies <end>
+image: grumpy-cat.jpg, beam search:<pause> ? i you , ... ! is the a
+image: success-kid_first.jpg, greedy algo: <start> <pause> <end>
+image: success-kid_first.jpg, softmax: <start> server doesnt want out <pause> she beaten him on my try <end>
+image: success-kid_first.jpg, beam search:<pause> to a in on the got up went my
+image: what-if-i-told-you-matrix-morpheus.jpg, greedy algo: <start> what if i told you <pause> that you can be a <end>
+image: what-if-i-told-you-matrix-morpheus.jpg, softmax: <start> what if i told you <pause> your favourite level is the public toilet and the , you will have dick what funny and right ,
+image: what-if-i-told-you-matrix-morpheus.jpg, beam search:you u <pause> you.. it that your i the someone
+image: chemistry-cat.jpg, greedy algo: <start> <pause> <end>
+image: chemistry-cat.jpg, softmax: <start> its your <pause> <end>
+image: chemistry-cat.jpg, beam search:<pause> ? i you , ... do is the to
+image: futurama-fry.jpg, greedy algo: <start> not sure if <pause> or just <end>
+image: futurama-fry.jpg, softmax: <start> not sure if drunk <pause> or actually stupid <end>
+image: futurama-fry.jpg, beam search:if <pause> whether what is ıf i of which why
+image: image_from_ios.jpg, greedy algo: <start> <pause> <end>
+image: image_from_ios.jpg, softmax: <start> have discovered the own face ... . <pause> even ! <end>
+image: image_from_ios.jpg, beam search:<pause> , ? the ! ... i is you why
